@@ -4,7 +4,6 @@ import os
 
 from telegram import ParseMode, ReplyKeyboardRemove, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-
 from order_conversation import *
 from decorator import *
 
@@ -12,6 +11,7 @@ token = os.environ['TOKEN']
 
 
 @log
+@test
 @send_action(ChatAction.TYPING)
 def start(bot, update):
     update.message.reply_text("歡迎使用 TKUOSC 機器人，使用 /help 獲得更多資訊")
@@ -44,6 +44,7 @@ def help(bot, update):
         )
     )
 
+    
 @log
 @send_action(ChatAction.TYPING)
 def getme(bot, update):
