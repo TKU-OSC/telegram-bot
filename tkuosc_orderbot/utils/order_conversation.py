@@ -1,12 +1,14 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler
+
+import os
 import datetime
 
 from tkuosc_orderbot.utils.decorators import *
 
 
 def _options_provider():
-    with open('files/drinks.json', 'r') as drinks_file:
+    with open(os.path.join(os.path.dirname(__file__), "../../files/drinks.json"), 'r') as drinks_file:
         drinks_title, drinks_list = json.load(drinks_file)
         must_choose_title = drinks_title.pop()
         for title in drinks_title:
