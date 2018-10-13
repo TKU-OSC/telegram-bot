@@ -1,12 +1,11 @@
 from setuptools import setup
-import orderbot
 
 with open('requirements.txt', 'r') as requirements:
     install_requires = [package for package in requirements]
 
 setup(
     name='TKUOSC_OrderBot',
-    version=orderbot.__version__,
+    version='0.0.isekai_dev0',
     packages=['orderbot',
               'orderbot.utils'
               ],
