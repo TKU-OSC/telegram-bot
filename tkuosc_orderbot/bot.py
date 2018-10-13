@@ -4,8 +4,8 @@ import os
 
 from telegram import ParseMode, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from orderbot.utils.order_conversation import *
-from orderbot.utils.decorators import *
+from tkuosc_orderbot.utils.order_conversation import *
+from tkuosc_orderbot.utils.decorators import *
 
 
 @log

@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler
 import datetime
 
-from orderbot.utils.decorators import *
+from tkuosc_orderbot.utils.decorators import *
 
 
 def _options_provider():
