@@ -110,4 +110,5 @@ def main(token):
 if __name__ == '__main__':
     TOKEN = os.environ.get('TOKEN', False) or input(
         'It seems like you don\'t have environment variable `TOKEN`.\nPlease enter it below:\n')
+    # TODO  hide the input TOKEN
     main(TOKEN)
