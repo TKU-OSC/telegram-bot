@@ -4,7 +4,7 @@ from telegram.ext import ConversationHandler
 import os
 import datetime
 
-from tkuosc_orderbot.utils.decorators import *
+from tkuosc_bot.utils.decorators import *
 
 
 def _options_provider():

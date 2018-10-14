@@ -6,8 +6,8 @@ with open('requirements.txt', 'r') as requirements:
 setup(
     name='TKUOSC_OrderBot',
     version='0.0.isekai_dev0',
-    packages=['tkuosc_orderbot',
-              'tkuosc_orderbot.utils'
+    packages=['tkuosc_bot',
+              'tkuosc_bot.utils'
               ],
     install_requires=install_requires,
     python_requires='>=3',

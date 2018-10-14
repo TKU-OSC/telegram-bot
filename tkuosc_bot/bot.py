@@ -3,8 +3,8 @@
 
 from telegram import ParseMode, ChatAction, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from tkuosc_orderbot.utils.conversation import *
-from tkuosc_orderbot.utils.decorators import *
+from tkuosc_bot.utils.conversation import *
+from tkuosc_bot.utils.decorators import *
 
 
 @log
