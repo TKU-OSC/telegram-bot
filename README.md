@@ -1,5 +1,4 @@
 # TKU-OSC Order Bot
-<img src="https://simpleicons.org/icons/telegram.svg" width=45/>
 
 [![TKU-OSC Order Bot](https://img.shields.io/badge/orderbot-TKU--OSC-blue.svg)](https://t.me/TKUOSC_OrderBot)
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg?style=social)](https://raw.githubusercontent.com/TKU-OSC/telegram-bot/master/LICENSE)
