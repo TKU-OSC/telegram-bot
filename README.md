@@ -1,4 +1,4 @@
-[![TKU-OSC Order Bot](https://simpleicons.org/icons/telegram.svg)](https://t.me/TKUOSC_OrderBot)
+[![TKU-OSC Order Bot](https://img.shields.io/badge/orderbot-TKU--OSC-blue.svg)](https://t.me/TKUOSC_OrderBot)
 # TKU-OSC Order Bot
 This bot is mainly to deal with the process of ordering drinks in weekly meet up.  
 
