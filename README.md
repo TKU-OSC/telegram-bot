@@ -1,3 +1,4 @@
+[![Bot]()](https://t.me/TKUOSC_OrderBot)
 # TKU-OSC Order Bot
 This bot is mainly to deal with the process of ordering drinks in weekly meet up.  
 
