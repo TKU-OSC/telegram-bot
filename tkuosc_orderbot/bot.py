@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
 
 from telegram import ParseMode, ChatAction
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
@@ -9,7 +8,6 @@ from tkuosc_orderbot.utils.decorators import *
 
 
 @log
-@test
 @send_action(ChatAction.TYPING)
 def start(bot, update):
     update.message.reply_text("歡迎使用 TKU-OSC Order 機器人，使用 /help 獲得更多資訊")
@@ -23,7 +21,7 @@ def help_(bot, update):
                                       /help
                                          show this
                                       /start_ordering
-                                          start a new meet up order (?
+                                          start a new meet up order
                                       /stop_ordering
                                           end the ordering
                                   
