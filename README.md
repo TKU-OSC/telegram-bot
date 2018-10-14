@@ -1,5 +1,7 @@
-[![TKU-OSC Order Bot](https://img.shields.io/badge/orderbot-TKU--OSC-blue.svg)](https://t.me/TKUOSC_OrderBot)
 # TKU-OSC Order Bot
+[![TKU-OSC Order Bot](https://img.shields.io/badge/orderbot-TKU--OSC-blue.svg)](https://t.me/TKUOSC_OrderBot)
+![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg?style=social)
+
 This bot is mainly to deal with the process of ordering drinks in weekly meet up.  
 
 ## Installation
