@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from telegram import ParseMode, ChatAction
+from telegram import ParseMode, ChatAction, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from tkuosc_orderbot.utils.order_conversation import *
+from tkuosc_orderbot.utils.conversation import *
 from tkuosc_orderbot.utils.decorators import *
 
 
@@ -65,6 +65,15 @@ def chat_data(bot, update, chat_data):
                               )
 
 
+@log
+@send_action(ChatAction.TYPING)
+def cancel(bot, update):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text('Canceled',
+                              reply_markup=ReplyKeyboardRemove())
+
+
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
@@ -76,6 +85,7 @@ def main(token):
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('help', help_))
+    updater.dispatcher.add_handler(CommandHandler('cancel', cancel))
 
     # start_ordering the drinks
     updater.dispatcher.add_handler(

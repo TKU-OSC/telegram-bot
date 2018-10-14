@@ -20,7 +20,7 @@ def _options_provider():
 
 
 def _concat_chosen_items(items):
-    # items means the list of itema user have chosen
+    # items means the list of item a user have chosen
     return '{}\n{}'.format(datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
                            ' -> '.join(item for item in items)
                            )
