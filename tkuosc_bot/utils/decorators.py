@@ -54,20 +54,3 @@ def choose_log(func):
         return func(bot, update, *args, **kwargs)
 
     return wrapped
-
-
-def test(func):
-    @wraps(func)
-    def wrapped(bot, update, *args, **kwargs):
-        user = update.message.from_user
-        with open('club.json', 'r+') as data:
-            members = json.load(data)
-            if user.id not in (m['UID'] for m in members):
-                members.append({"UID": user.id, "FirstName": user.first_name})
-                data.seek(0)
-                data.write(json.dumps(members))
-                data.truncate()
-
-        return func(bot, update, *args, **kwargs)
-
-    return wrapped
