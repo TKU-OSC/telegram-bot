@@ -93,7 +93,7 @@ def main(token):
             entry_points=[CommandHandler('start_ordering', start_ordering, pass_user_data=True)],
             states={
                 "choose options": [CallbackQueryHandler(choose_options, pass_user_data=True)],
-                "start_ordering complete": [CallbackQueryHandler(choose_options, pass_user_data=True)]
+                "order complete": [CallbackQueryHandler(choose_options, pass_user_data=True)]
             },
             fallbacks=[CommandHandler('stop_ordering', stop_ordering, pass_user_data=True)]
         )

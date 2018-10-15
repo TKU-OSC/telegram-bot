@@ -69,7 +69,7 @@ def choose_options(bot, update, user_data):
     elif query.data == "取消":
         del user_data['options_provider'], user_data['items_chosen']
 
-        if user_data.get('start_ordering', False):
+        if user_data.get('order', False):
             return order_complete(bot, update, user_data)
         else:
             return welcome_page(bot, update, user_data)
@@ -80,7 +80,7 @@ def choose_options(bot, update, user_data):
         text, items = user_data['options_provider'].send(None if query.data in ("開始點餐", "更改訂單") else query.data)
 
     except StopIteration:
-        user_data['start_ordering'] = _concat_chosen_items(user_data['items_chosen'])
+        user_data['order'] = _concat_chosen_items(user_data['items_chosen'])
         del user_data['options_provider'], user_data['items_chosen']
 
         return order_complete(bot, update, user_data)
@@ -102,7 +102,7 @@ def choose_options(bot, update, user_data):
 
 def order_complete(bot, update, user_data):
     bot.edit_message_text(
-        text="訂單完成:\n{}".format(user_data['start_ordering']),
+        text="訂單完成:\n{}".format(user_data['order']),
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("更改訂單", callback_data="更改訂單")],
                                            ]
                                           ),
@@ -112,14 +112,14 @@ def order_complete(bot, update, user_data):
 
     # TODO  save start_ordering per user
 
-    return "start_ordering complete"
+    return "order complete"
 
 
 @log
 def stop_ordering(bot, update, user_data):
     bot.edit_message_text(
         text='{}\n最後訂單: {}'.format(_stop_ordering_text,
-                                   user_data.get('start_ordering', '你沒有填寫 QwQ')
+                                   user_data.get('order', '你沒有填寫 QwQ')
                                    ),
 
         **user_data['order_message_ids']
