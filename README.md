@@ -9,4 +9,4 @@ This bot is mainly to deal with the process of ordering drinks in weekly meet up
     pip install -e git+https://github.com/TKU-OSC/telegram-bot.git#egg=TKUOSC_OrderBot
     
 ## Run
-    python -m tkuosc_orderbot.bot
+    python -m tkuosc_bot.bot
