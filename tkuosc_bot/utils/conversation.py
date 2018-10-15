@@ -26,6 +26,28 @@ def _concat_chosen_items(items):
                            )
 
 
+def _saver(data):
+    # File name will be a special token
+    try:
+        fd = open('temp', 'r+')
+    except FileNotFoundError:
+        fd = open('temp', 'w+')
+
+    text = fd.read()
+    if text:
+        records = json.loads(text)
+        records.update(data)
+    else:
+        records = data
+
+    fd.seek(0)
+    print(records)
+    fd.write(json.dumps(records))
+    fd.truncate()
+
+    fd.close()
+
+
 # TODO edit some config text
 # _loading_text = random.choice(('這裡是 Loading 文字', '我是基德，是個 bot', '幫我想幹話'))  # 每週幹話，誰敢刪這行 ?
 
@@ -110,7 +132,15 @@ def order_complete(bot, update, user_data):
         **user_data['order_message_ids']
     )
 
-    # TODO  save start_ordering per user
+    # TODO  save order per user
+    user = update.callback_query.from_user
+    data = {
+        str(user.id): {'order': user_data['order'],
+                  'username': user.username
+                  }
+    }
+
+    _saver(data)
 
     return "order complete"
 
