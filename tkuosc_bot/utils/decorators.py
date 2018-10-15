@@ -1,4 +1,3 @@
-import json
 import logging
 from functools import wraps
 
@@ -7,14 +6,14 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-def restricted(func):
+def admins_only(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
-        user_id = update.effective_user.id
-        with open('admin_list.txt', 'r') as admin:
-            if user_id not in admin:
-                print("Unauthorized access denied for {}.".format(user_id))
-                return
+        if bot.get_chat_member(update.message.chat.id, update.message.from_user.id, *args, **kwargs).status \
+                not in ('administrator', 'creator'):
+            update.message.reply_text('Sorry, this is not for you. QwQ')
+            return
+
         return func(bot, update, *args, **kwargs)
 
     return wrapped

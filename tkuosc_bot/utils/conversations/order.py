@@ -1,10 +1,11 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ConversationHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
+from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
+from tkuosc_bot.utils.decorators import log, choose_log, send_action
 
 import os
+import json
 import datetime
 
-from tkuosc_bot.utils.decorators import *
 
 
 def _options_provider():
@@ -41,7 +42,6 @@ def _saver(data):
         records = data
 
     fd.seek(0)
-    print(records)
     fd.write(json.dumps(records))
     fd.truncate()
 
@@ -54,6 +54,18 @@ def _saver(data):
 _loading_text = 'Loading...'
 _welcome_page_text = '這週 xxx 開放點餐囉~ 之類的'
 _stop_ordering_text = "結束惹 OwO\n我想放點 TOKEN 或 QRCode"
+
+
+@log
+@send_action(ChatAction.TYPING)
+def start(bot, update, args, user_data):
+    if args:
+        update.message.reply_text(base64.b64decode(args[0].encode()).decode())
+        return start_ordering(bot, update, user_data)
+    else:
+        update.message.reply_text("歡迎使用 TKU-OSC Order 機器人，使用 /help 獲得更多資訊")
+
+    return ConversationHandler.END
 
 
 @log
@@ -136,8 +148,8 @@ def order_complete(bot, update, user_data):
     user = update.callback_query.from_user
     data = {
         str(user.id): {'order': user_data['order'],
-                  'username': user.username
-                  }
+                       'username': user.username
+                       }
     }
 
     _saver(data)
@@ -160,3 +172,13 @@ def stop_ordering(bot, update, user_data):
 
     user_data.clear()
     return ConversationHandler.END
+
+
+order_conv_handler = ConversationHandler(
+    entry_points=[CommandHandler('start', start, pass_args=True, pass_user_data=True)],
+    states={
+        "choose options": [CallbackQueryHandler(choose_options, pass_user_data=True)],
+        "order complete": [CallbackQueryHandler(choose_options, pass_user_data=True)]
+    },
+    fallbacks=[CommandHandler('stop_ordering', stop_ordering, pass_user_data=True)]
+)
