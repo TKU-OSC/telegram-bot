@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from telegram import ParseMode, ChatAction, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Filters
 from tkuosc_bot.utils.conversation import *
 from tkuosc_bot.utils.decorators import *
 
@@ -41,10 +41,17 @@ def help_(bot, update):
 @log
 @send_action(ChatAction.TYPING)
 def getme(bot, update):
-    update.message.reply_text(text="`" + str(update.message.from_user.id) + "`",
-                              quote=True,
-                              parse_mode=ParseMode.MARKDOWN
-                              )
+    if update.message.reply_to_message:
+        reply_user = update.message.reply_to_message.from_user
+        update.message.reply_text(text="`" + str(reply_user.id) + "`",
+                                  quote=True,
+                                  parse_mode=ParseMode.MARKDOWN
+                                  )
+    else:
+        update.message.reply_text(text="`" + str(update.message.from_user.id) + "`",
+                                  quote=True,
+                                  parse_mode=ParseMode.MARKDOWN
+                                  )
 
 
 @log
