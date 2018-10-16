@@ -71,7 +71,7 @@ def chat_data(bot, update, chat_data):
 def lsop(bot, update):
     with open(os.path.join(os.path.dirname(__file__), "../files/admin_list.txt"), 'r') as data:
         admins = {i.strip() for i in data}
-        str_admin = '\n'.join(str(admin) for admin in admins)
+        str_admin = '\n'.join(str(admin) for admin in sorted(admins))
         text = "管理員 UID：\n" + str_admin
         update.message.reply_text(text=text)
 
@@ -88,7 +88,7 @@ def addop(bot, update, args):
             for item in args:
                 admins.add(item)
             data.seek(0)
-            data.writelines("{}\n".format(i) for i in admins)
+            data.writelines("{}\n".format(i) for i in sorted(admins))
             data.truncate()
         update.message.reply_text("已新增新管理員")
 
@@ -112,7 +112,7 @@ def deop(bot, update, args):
                 else:
                     admins.remove(item)
             data.seek(0)
-            data.writelines("{}\n".format(i) for i in admins)
+            data.writelines("{}\n".format(i) for i in sorted(admins))
             data.truncate()
         update.message.reply_text("已移除管理員")
 
