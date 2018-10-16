@@ -92,6 +92,30 @@ def addop(bot, update, args):
 
 
 @log
+@restricted
+@send_action(ChatAction.TYPING)
+def deop(bot, update, args):
+    if not args:
+        update.message.reply_text("請輸入 op 的 UID")
+    else:
+        with open(os.path.join(os.path.dirname(__file__), "../files/admin_list.txt"), 'r+') as data:
+            admins = {i.strip() for i in data}
+            for item in args:
+                if item == str(update.effective_user.id):
+                    update.message.reply_text("你不應該移除自己，指令已中斷")
+                    return
+                if item not in admins:
+                    update.message.reply_text("管理員不存在\n請查詢 /lsop 以獲得管理員清單")
+                    return
+                else:
+                    admins.remove(item)
+            data.seek(0)
+            data.writelines("{}\n".format(i) for i in admins)
+            data.truncate()
+        update.message.reply_text("已移除管理員")
+
+
+@log
 @send_action(ChatAction.TYPING)
 def cancel(bot, update):
     user = update.message.from_user
@@ -114,6 +138,7 @@ def main(token):
     updater.dispatcher.add_handler(CommandHandler('cancel', cancel))
     updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
     updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
+    updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
 
     # start_ordering the drinks
     updater.dispatcher.add_handler(
