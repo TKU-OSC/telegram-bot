@@ -71,7 +71,9 @@ def chat_data(bot, update, chat_data):
 def lsop(bot, update):
     with open(os.path.join(os.path.dirname(__file__), "../files/admin_list.txt"), 'r') as data:
         admins = {i.strip() for i in data}
-        update.message.reply_text(text=str(admins))
+        str_admin = '\n'.join(str(admin) for admin in admins)
+        text = "管理員 UID：\n" + str_admin
+        update.message.reply_text(text=text)
 
 
 @log
@@ -136,9 +138,6 @@ def main(token):
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('help', help_))
     updater.dispatcher.add_handler(CommandHandler('cancel', cancel))
-    updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
-    updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
-    updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
 
     # start_ordering the drinks
     updater.dispatcher.add_handler(
@@ -156,6 +155,11 @@ def main(token):
     updater.dispatcher.add_handler(CommandHandler('getme', getme))
     updater.dispatcher.add_handler(CommandHandler('user_data', user_data, pass_user_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data, pass_chat_data=True))
+
+    # Admin commands
+    updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
+    updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
+    updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
 
     # Error handler
     updater.dispatcher.add_error_handler(error)
