@@ -67,6 +67,30 @@ def chat_data(bot, update, chat_data):
 
 @log
 @send_action(ChatAction.TYPING)
+def lsop(bot, update):
+    with open(os.path.join(os.path.dirname(__file__), "../files/admin_list.txt"), 'r') as data:
+        admins = {i.strip() for i in data}
+        update.message.reply_text(text=str(admins))
+
+
+@log
+@send_action(ChatAction.TYPING)
+def addop(bot, update, args):
+    if not args:
+        update.message.reply_text("請輸入 op 的 UID")
+    else:
+        with open(os.path.join(os.path.dirname(__file__), "../files/admin_list.txt"), 'r+') as data:
+            admins = {i.strip() for i in data}
+            for item in args:
+                admins.add(item)
+            data.seek(0)
+            data.writelines("{}\n".format(i) for i in admins)
+            data.truncate()
+        update.message.reply_text("已新增新管理員")
+
+
+@log
+@send_action(ChatAction.TYPING)
 def cancel(bot, update):
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
@@ -86,6 +110,8 @@ def main(token):
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('help', help_))
     updater.dispatcher.add_handler(CommandHandler('cancel', cancel))
+    updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
+    updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
 
     # start_ordering the drinks
     updater.dispatcher.add_handler(
