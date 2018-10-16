@@ -1,5 +1,5 @@
-import json
 import logging
+import os
 from functools import wraps
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -11,9 +11,11 @@ def restricted(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
         user_id = update.effective_user.id
-        with open('admin_list.txt', 'r') as admin:
-            if user_id not in admin:
+        with open(os.path.join(os.path.dirname(__file__), "../../files/admin_list.txt"), 'r') as data:
+            admin = {i.strip() for i in data}
+            if str(user_id) not in admin:
                 print("Unauthorized access denied for {}.".format(user_id))
+                update.message.reply_text("你沒有權限使用指令")
                 return
         return func(bot, update, *args, **kwargs)
 

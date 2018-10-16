@@ -66,6 +66,7 @@ def chat_data(bot, update, chat_data):
 
 
 @log
+@restricted
 @send_action(ChatAction.TYPING)
 def lsop(bot, update):
     with open(os.path.join(os.path.dirname(__file__), "../files/admin_list.txt"), 'r') as data:
@@ -74,6 +75,7 @@ def lsop(bot, update):
 
 
 @log
+@restricted
 @send_action(ChatAction.TYPING)
 def addop(bot, update, args):
     if not args:
