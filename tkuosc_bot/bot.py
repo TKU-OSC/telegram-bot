@@ -2,20 +2,16 @@
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler
 from tkuosc_bot.utils.conversations.order import order_conv_handler
+from tkuosc_bot.utils.conversations.new_meet import create_meet_up_conv_handler
 from tkuosc_bot.utils.basic_instructions import help_
 from tkuosc_bot.utils.debug_instructions import get_me, chat_id, chat_data_, user_data_, error
 
 
-from tkuosc_bot.utils.decorators import admins_only
-
-
-@admins_only
-def create_meet_up(bot, update, *args, **kwargs):
-    update.message.reply_text('ha ha loser ~')
-
-
 def test(bot, update):
-    update.message.reply_text('\n'.join(str(admin) for admin in bot.get_chat_administrators(update.message.chat.id)))
+    bot.send_message(text='[Meow](tg://user?id=184805205)\n[mEOw](https://t.me/allen0099)',
+                     chat_id=-285353445,
+                     parse_mode='Markdown',
+                     disable_web_page_preview=True)
 
 
 def main(token):
@@ -23,7 +19,6 @@ def main(token):
     updater = Updater(token)
 
     # under develop instruction
-    updater.dispatcher.add_handler(CommandHandler('create_meet_up', create_meet_up))
     updater.dispatcher.add_handler(CommandHandler('test', test))
 
     # basic instruction
@@ -40,6 +35,9 @@ def main(token):
 
     # ordering conversation
     updater.dispatcher.add_handler(order_conv_handler)
+
+    # create meet up conversation
+    updater.dispatcher.add_handler(create_meet_up_conv_handler)
 
     # Start the Bot
     updater.start_polling()

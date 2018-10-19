@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def admins_only(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
-        if bot.get_chat_member(update.message.chat.id, update.message.from_user.id, *args, **kwargs).status \
+        if bot.get_chat_member(update.message.chat.id, update.message.from_user.id).status \
                 not in ('administrator', 'creator'):
             update.message.reply_text('Sorry, this is not for you. QwQ')
             return
