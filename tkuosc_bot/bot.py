@@ -1,111 +1,50 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from telegram import ParseMode, ChatAction, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from tkuosc_bot.utils.conversation import *
-from tkuosc_bot.utils.decorators import *
-
-
-@log
-@send_action(ChatAction.TYPING)
-def start(bot, update):
-    update.message.reply_text("歡迎使用 TKU-OSC Order 機器人，使用 /help 獲得更多資訊")
+from telegram.ext import Updater, CommandHandler
+from tkuosc_bot.instructions.conversations.order import order_conv_handler
+from tkuosc_bot.instructions.conversations.new_meet import create_meet_up_conv_handler
+from tkuosc_bot.instructions.basic import help_
+from tkuosc_bot.instructions.debug import get_me, chat_id, chat_data_, user_data_, error, chat_member, user
 
 
-@log
-@send_action(ChatAction.TYPING)
-def help_(bot, update):
-    update.message.reply_text(''.join(line for line in
-                                      '''
-                                      /help
-                                         show this
-                                      /start_ordering
-                                          start a new meet up order
-                                      /stop_ordering
-                                          end the ordering
-                                  
-                                  
-                                      debug instruction:
-                                      /getme
-                                          return your user_id
-                                      /user_data
-                                          return your user_data
-                                      /chat_data
-                                          return chat_data of this chat
-                                      '''.split(' ' * 38)
-                                      )
-                              )
+from telegram import ParseMode
 
 
-@log
-@send_action(ChatAction.TYPING)
-def getme(bot, update):
-    update.message.reply_text(text="`" + str(update.message.from_user.id) + "`",
+def test(bot, update):
+    chat_mem = bot.get_chat_member(chat_id=update.message.chat_id,
+                                   user_id=134279938)
+    update.message.reply_text("`" + str(chat_mem.user) + "`",
                               quote=True,
                               parse_mode=ParseMode.MARKDOWN
                               )
-
-
-@log
-@send_action(ChatAction.TYPING)
-def user_data(bot, update, user_data):
-    update.message.reply_text("`" + str(user_data) + "`",
-                              quote=True,
-                              parse_mode=ParseMode.MARKDOWN
-                              )
-
-
-@log
-@send_action(ChatAction.TYPING)
-def chat_data(bot, update, chat_data):
-    update.message.reply_text("`" + str(chat_data) + "`",
-                              quote=True,
-                              parse_mode=ParseMode.MARKDOWN
-                              )
-
-
-@log
-@send_action(ChatAction.TYPING)
-def cancel(bot, update):
-    user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
-    update.message.reply_text('Canceled',
-                              reply_markup=ReplyKeyboardRemove())
-
-
-def error(bot, update, error):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, error)
 
 
 def main(token):
     # Create the Updater and pass it your bot's token.
     updater = Updater(token)
 
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(CommandHandler('help', help_))
-    updater.dispatcher.add_handler(CommandHandler('cancel', cancel))
+    # under develop instruction
+    updater.dispatcher.add_handler(CommandHandler('test', test))
 
-    # start_ordering the drinks
-    updater.dispatcher.add_handler(
-        ConversationHandler(
-            entry_points=[CommandHandler('start_ordering', start_ordering, pass_user_data=True)],
-            states={
-                "choose options": [CallbackQueryHandler(choose_options, pass_user_data=True)],
-                "order complete": [CallbackQueryHandler(choose_options, pass_user_data=True)]
-            },
-            fallbacks=[CommandHandler('stop_ordering', stop_ordering, pass_user_data=True)]
-        )
-    )
+    # basic instruction
+    updater.dispatcher.add_handler(CommandHandler('help', help_))
 
     # debug instruction
-    updater.dispatcher.add_handler(CommandHandler('getme', getme))
-    updater.dispatcher.add_handler(CommandHandler('user_data', user_data, pass_user_data=True))
-    updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data, pass_chat_data=True))
+    updater.dispatcher.add_handler(CommandHandler('get_me', get_me))
+    updater.dispatcher.add_handler(CommandHandler('chat_id', chat_id))
+    updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
+    updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
+    updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))
+    updater.dispatcher.add_handler(CommandHandler('user', user))
 
     # Error handler
     updater.dispatcher.add_error_handler(error)
+
+    # ordering conversation
+    updater.dispatcher.add_handler(order_conv_handler)
+
+    # create meet up conversation
+    updater.dispatcher.add_handler(create_meet_up_conv_handler)
 
     # Start the Bot
     updater.start_polling()
@@ -116,6 +55,8 @@ def main(token):
 
 
 if __name__ == '__main__':
+    import os
+
     TOKEN = os.environ.get('TOKEN', False) or input(
         'It seems like you don\'t have environment variable `TOKEN`.\nPlease enter it below:\n')
     # TODO  hide the input TOKEN
