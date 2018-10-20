@@ -56,6 +56,15 @@ def getme(bot, update):
 
 @log
 @send_action(ChatAction.TYPING)
+def getid(bot, update):
+    update.message.reply_text(text="`" + str(update.message.chat.id) + "`",
+                              quote=True,
+                              parse_mode=ParseMode.MARKDOWN
+                              )
+
+
+@log
+@send_action(ChatAction.TYPING)
 def user_data(bot, update, user_data):
     update.message.reply_text("`" + str(user_data) + "`",
                               quote=True,
@@ -160,6 +169,7 @@ def main(token):
 
     # debug instruction
     updater.dispatcher.add_handler(CommandHandler('getme', getme))
+    updater.dispatcher.add_handler(CommandHandler('getid', getid))
     updater.dispatcher.add_handler(CommandHandler('user_data', user_data, pass_user_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data, pass_chat_data=True))
 
