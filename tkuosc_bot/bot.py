@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler
-from tkuosc_bot.utils.conversations.order import order_conv_handler
-from tkuosc_bot.utils.conversations.new_meet import create_meet_up_conv_handler
-from tkuosc_bot.utils.basic_instructions import help_
-from tkuosc_bot.utils.debug_instructions import get_me, chat_id, chat_data_, user_data_, error
+from tkuosc_bot.instructions.conversations.order import order_conv_handler
+from tkuosc_bot.instructions.conversations.new_meet import create_meet_up_conv_handler
+from tkuosc_bot.instructions.basic import help_
+from tkuosc_bot.instructions.debug import get_me, chat_id, chat_data_, user_data_, error, chat_member, user
+
+
+from telegram import ParseMode
 
 
 def test(bot, update):
-    bot.send_message(text='[Meow](tg://user?id=184805205)\n[mEOw](https://t.me/allen0099)\n*bold text*\n_italic text_',
-                     chat_id=-285353445,
-                     parse_mode='Markdown',
-                     disable_web_page_preview=True)
+    chat_mem = bot.get_chat_member(chat_id=update.message.chat_id,
+                                   user_id=134279938)
+    update.message.reply_text("`" + str(chat_mem.user) + "`",
+                              quote=True,
+                              parse_mode=ParseMode.MARKDOWN
+                              )
 
 
 def main(token):
@@ -29,6 +34,8 @@ def main(token):
     updater.dispatcher.add_handler(CommandHandler('chat_id', chat_id))
     updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
+    updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))
+    updater.dispatcher.add_handler(CommandHandler('user', user))
 
     # Error handler
     updater.dispatcher.add_error_handler(error)

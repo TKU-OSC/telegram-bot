@@ -1,8 +1,8 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
 
 from tkuosc_bot.utils.decorators import admins_only, log, choose_log
-from tkuosc_bot.utils import data_base
+from tkuosc_bot.data_base import files
 
 import base64
 import datetime
@@ -106,7 +106,7 @@ def list_participators(bot, update, meet_ids, meet_name):
                                            parse_mode='Markdown'
                                            )
 
-    data_base.Meet(*meet_ids).initialize_meet(meet_name, participate_message.message_id)
+    files.Meet(*meet_ids).initialize_meet(meet_name, participate_message.message_id)
     return ConversationHandler.END
 
 

@@ -3,7 +3,7 @@ from telegram.error import BadRequest
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
 
 from tkuosc_bot.utils.decorators import log, choose_log, send_action
-from tkuosc_bot.utils import data_base
+from tkuosc_bot.data_base import files
 
 import re
 import datetime
@@ -12,13 +12,14 @@ import base64
 
 def _concat_chosen_items(items):
     # items means the list of item a user have chosen
-    return '{} ({}) {:%Y-%m-%d %H:%M:%S}'.format(*items[-2:], datetime.datetime.today())
+    return '{} ({})'.format(*items[-2:])
 
 
 def _add_order_and_update_participators_list(bot, meet, data):
     meet.add_order(data)
 
-    text = '*participators:\n*' + '\n'.join('[{username}](tg://user?id={uid})    {order}'.format(uid=uid, **data)
+    text = '*participators:\n*' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
+        uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
                                             for uid, data in meet.access_data()['order_users'].items())
 
     bot.edit_message_text(text=text,
@@ -34,7 +35,7 @@ def _add_order_and_update_participators_list(bot, meet, data):
 _loading_text = 'Loading...'
 _welcome_page_text = '開放點餐囉~'
 _stop_ordering_text = "結束惹 OwO\n我想放點 TOKEN 或 QRCode"
-_ai_cafe_menu = data_base.Menu('Ai_cafe_drinks.json')
+_ai_cafe_menu = files.Menu('Ai_cafe_drinks.json')
 
 
 @log
@@ -46,7 +47,7 @@ def start(bot, update, args, user_data):
         meet_ids = (int.from_bytes(special_bytes[20:27], 'big', signed=True),
                     int.from_bytes(special_bytes[27:], 'big')
                     )
-        meet = data_base.Meet(*meet_ids)
+        meet = files.Meet(*meet_ids)
 
         if meet.is_open_meet():
             try:
@@ -153,7 +154,13 @@ def order_complete_page(bot, update, user_data, order_chat_id, order_message_id)
     user = update.callback_query.from_user
     data = {
         str(user.id): {'order': order_data['order'],
-                       'username': user.username
+                       'username': user.username,
+                       'first_name': user.first_name,
+                       'order_ids': (order_chat_id, order_message_id),
+                       'show_up': False,
+                       'paid': False,
+                       'timestamp': '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.today()),
+
                        }
     }
 

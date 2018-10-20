@@ -1,10 +1,11 @@
 from telegram import ChatAction
-from tkuosc_bot.utils.decorators import log, send_action
+from tkuosc_bot.utils.decorators import log, send_action, admins_only
 
 
 
 @log
 @send_action(ChatAction.TYPING)
+@admins_only
 def help_(bot, update):
     update.message.reply_text(''.join(line for line in
                                       '''
