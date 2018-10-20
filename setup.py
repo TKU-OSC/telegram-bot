@@ -15,7 +15,7 @@ setup(
     install_requires=install_requires,
     python_requires='>=3',
     data_files=[('files/menu', ['files/menu/Ai_cafe_drinks.json']),
-                ('files/meet', [''])
+                ('files/meet', ['files/meet/open/', 'files/meet/close'])
                 ],
     url='https://github.com/TKU-OSC/telegram-bot/tree/master',
     license='MIT',
