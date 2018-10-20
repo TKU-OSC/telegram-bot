@@ -1,11 +1,9 @@
-from telegram import ChatAction
-from tkuosc_bot.utils.decorators import log, send_action, admins_only
-
+from telegram import ChatAction, ReplyKeyboardRemove
+from tkuosc_bot.utils.decorators import log, send_action, logger
 
 
 @log
 @send_action(ChatAction.TYPING)
-@admins_only
 def help_(bot, update):
     update.message.reply_text(''.join(line for line in
                                       '''
@@ -29,3 +27,12 @@ def help_(bot, update):
                                       '''.split(' ' * 38)
                                       )
                               )
+
+
+@log
+@send_action(ChatAction.TYPING)
+def cancel(bot, update):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text('Canceled',
+                              reply_markup=ReplyKeyboardRemove())

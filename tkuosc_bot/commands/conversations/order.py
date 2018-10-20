@@ -160,7 +160,6 @@ def order_complete_page(bot, update, user_data, order_chat_id, order_message_id)
                        'show_up': False,
                        'paid': False,
                        'timestamp': '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.today()),
-
                        }
     }
 

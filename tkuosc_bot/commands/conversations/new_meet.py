@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
 
-from tkuosc_bot.utils.decorators import admins_only, log, choose_log
+from tkuosc_bot.utils.decorators import restricted, log, choose_log
 from tkuosc_bot.data_base import files
 
 import base64
@@ -19,10 +19,10 @@ _choose_date_text = 'choose a date to meet'
 _link_button_text = '點我點餐'
 _no_participator_text = 'Nobody QwQ'
 _easter_egg = b'VEtVT1NDe0AxNTNrNDF9'  # QwQ
-
+# TODO: easter_egg should read by file, not hard coding here(allen0099)
 
 @log
-@admins_only
+@restricted
 def create_meet_up(bot, update, chat_data):
     link_message = update.message.reply_text(_loading_text)
 
