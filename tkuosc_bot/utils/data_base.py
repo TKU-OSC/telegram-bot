@@ -6,15 +6,20 @@ class Meet:
     _dir_path = os.path.join(os.path.dirname(__file__), '../../files/meet/')
 
     def __init__(self, chat_id, message_id):
+        self.chat_id = chat_id
+        self.msg_id = message_id
+
         self.meet_id = '{}{}'.format(message_id, chat_id)
         self.name = None
+        self.participators_msg_id = None
 
-    def initialize_meet(self, meet_name):
+    def initialize_meet(self, meet_name, participators_msg_id):
         file_name = os.path.join(Meet._dir_path,
                                  'open/{}.json'.format(self.meet_id))
         with open(file_name, 'w') as meet_data:
             data = {
                 'meet_name': meet_name,
+                'participators_msg_id': participators_msg_id,
                 'order_users': {}
             }
             json.dump(data, meet_data)
@@ -40,6 +45,11 @@ class Meet:
         if self.name is None:
             self.name = self.access_data()['meet_name']
         return self.name
+
+    def get_participators_msg_id(self):
+        if self.participators_msg_id is None:
+            self.participators_msg_id = self.access_data()['participators_msg_id']
+        return self.participators_msg_id
 
     def add_order(self, order_data):
         file_name = os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id))

@@ -12,9 +12,20 @@ import base64
 
 def _concat_chosen_items(items):
     # items means the list of item a user have chosen
-    return '{:%Y-%m-%d %H:%M:%S}\n{}'.format(datetime.datetime.today(),
-                                             ' -> '.join(item for item in items)
-                                             )
+    return '{} ({}) {:%Y-%m-%d %H:%M:%S}'.format(*items[-2:], datetime.datetime.today())
+
+
+def _add_order_and_update_participators_list(bot, meet, data):
+    meet.add_order(data)
+
+    text = '*participators:\n*' + '\n'.join('[{username}](tg://user?id={uid})    {order}'.format(uid=uid, **data)
+                                            for uid, data in meet.access_data()['order_users'].items())
+
+    bot.edit_message_text(text=text,
+                          chat_id=meet.chat_id,
+                          message_id=meet.get_participators_msg_id(),
+                          parse_mode='Markdown',
+                          )
 
 
 # TODO edit some config text
@@ -146,7 +157,7 @@ def order_complete_page(bot, update, user_data, order_chat_id, order_message_id)
                        }
     }
 
-    order_data['meet'].add_order(data)
+    _add_order_and_update_participators_list(bot, order_data['meet'], data)
 
     return "order complete"
 

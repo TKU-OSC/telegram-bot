@@ -14,10 +14,10 @@ def _signed_num_sizeof(value):
     from math import log2, ceil
     return ceil((ceil(log2(value + 1 if value >= 0 else abs(value))) + 1) / 8)'''
 
-
 _loading_text = 'Loading...'
 _choose_date_text = 'choose a date to meet'
 _link_button_text = '點我點餐'
+_no_participator_text = 'Nobody QwQ'
 _easter_egg = b'VEtVT1NDe0AxNTNrNDF9'  # QwQ
 
 
@@ -94,8 +94,19 @@ def order_link(bot, update, chat_data):
                           message_id=query.message.message_id
                           )
 
-    data_base.Meet(query.message.chat.id, query.message.message_id).initialize_meet(query.data)
+    meet_ids = (query.message.chat.id, query.message.message_id)
 
+    return list_participators(bot, update, meet_ids, query.data)
+
+
+def list_participators(bot, update, meet_ids, meet_name):
+    participate_message = bot.send_message(text='*participators:*\n\n    {}'.format(_no_participator_text),
+                                           chat_id=meet_ids[0],
+                                           reply_to_message_id=meet_ids[1],
+                                           parse_mode='Markdown'
+                                           )
+
+    data_base.Meet(*meet_ids).initialize_meet(meet_name, participate_message.message_id)
     return ConversationHandler.END
 
 

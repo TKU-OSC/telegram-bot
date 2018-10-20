@@ -8,7 +8,7 @@ from tkuosc_bot.utils.debug_instructions import get_me, chat_id, chat_data_, use
 
 
 def test(bot, update):
-    bot.send_message(text='[Meow](tg://user?id=184805205)\n[mEOw](https://t.me/allen0099)',
+    bot.send_message(text='[Meow](tg://user?id=184805205)\n[mEOw](https://t.me/allen0099)\n*bold text*\n_italic text_',
                      chat_id=-285353445,
                      parse_mode='Markdown',
                      disable_web_page_preview=True)
