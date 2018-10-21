@@ -1,4 +1,5 @@
 from telegram import ChatAction, ReplyKeyboardRemove
+
 from tkuosc_bot.utils.decorators import log, send_action, logger
 
 
@@ -36,3 +37,9 @@ def cancel(bot, update):
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text('Canceled',
                               reply_markup=ReplyKeyboardRemove())
+
+
+@log
+@send_action(ChatAction.TYPING)
+def command_unknown(bot, update):
+    update.message.reply_text("未知的指令，查閱 /help 獲取資訊")

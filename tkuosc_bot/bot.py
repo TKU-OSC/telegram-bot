@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-from tkuosc_bot.commands.basic import help_
+from tkuosc_bot.commands.basic import help_, command_unknown
 from tkuosc_bot.commands.conversations.meet import meet_handler
 from tkuosc_bot.commands.conversations.order import order_handler
 from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
@@ -38,13 +38,14 @@ def main(token):
     updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
 
-    # TODO: Make admin conversation to checkin or cashing (allen0099)
-
     # Ordering conversation
     updater.dispatcher.add_handler(order_handler)
 
     # Create meet up conversation
     updater.dispatcher.add_handler(meet_handler)
+
+    # Unknown command, must be the end
+    updater.dispatcher.add_handler(MessageHandler(Filters.command & ~ Filters.group, command_unknown))
 
     # Error handler, must at the end
     updater.dispatcher.add_error_handler(error)
