@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-from tkuosc_bot.commands.basic import help_
+from tkuosc_bot.commands.basic import help_, command_unknown
 from tkuosc_bot.commands.conversations.new_meet import create_meet_up_conv_handler
 from tkuosc_bot.commands.conversations.order import order_conv_handler
 from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
@@ -37,6 +37,9 @@ def main(token):
 
     # Create meet up conversation
     updater.dispatcher.add_handler(create_meet_up_conv_handler)
+
+    # Filter unknown commands
+    updater.dispatcher.add_handler(MessageHandler(Filters.command & ~ Filters.group, command_unknown))
 
     # Error handler, must at the end
     updater.dispatcher.add_error_handler(error)
