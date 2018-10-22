@@ -3,7 +3,7 @@ from telegram.error import BadRequest
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
 
 from tkuosc_bot.utils.decorators import log, choose_log, send_action
-from tkuosc_bot.data_base import files
+from tkuosc_bot.data_base import Files
 
 import re
 import datetime
@@ -26,6 +26,7 @@ def _add_order_and_update_participators_list(bot, meet, data):
                           chat_id=meet.chat_id,
                           message_id=meet.get_participators_msg_id(),
                           parse_mode='Markdown',
+                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('收單', callback_data='收單')]])
                           )
 
 
@@ -34,8 +35,7 @@ def _add_order_and_update_participators_list(bot, meet, data):
 
 _loading_text = 'Loading...'
 _welcome_page_text = '開放點餐囉~'
-_stop_ordering_text = "結束惹 OwO\n我想放點 TOKEN 或 QRCode"
-_ai_cafe_menu = files.Menu('Ai_cafe_drinks.json')
+_ai_cafe_menu = Files.Menu('Ai_cafe_drinks.json')
 
 
 @log
@@ -47,7 +47,7 @@ def start(bot, update, args, user_data):
         meet_ids = (int.from_bytes(special_bytes[20:27], 'big', signed=True),
                     int.from_bytes(special_bytes[27:], 'big')
                     )
-        meet = files.Meet(*meet_ids)
+        meet = Files.Meet(*meet_ids)
 
         if meet.is_open_meet():
             try:
@@ -66,28 +66,23 @@ def start(bot, update, args, user_data):
 @log
 def start_ordering(bot, update, user_data, meet):
     order_message = update.message.reply_text(text=_loading_text)
-    order_ids = (order_message.chat_id, order_message.message_id)
+
+    for mid, data in user_data.items():
+        if not meet.is_open_meet():
+            del user_data[mid]
 
     data = {
-        order_ids[1]: {
-            'meet': meet
-        }
+        'meet': meet
     }
-    user_data.update(data)
+    user_data[order_message.message_id] = data
 
-    return welcome_page(bot, update, user_data, *order_ids)
+    return welcome_page(order_message, data)
 
 
-def welcome_page(bot, update, user_data, order_chat_id, order_message_id):
-    order_data = user_data[order_message_id]
-
-    bot.edit_message_text(
-        text='{}\n{}'.format(order_data['meet'].get_meet_name(), _welcome_page_text),
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("開始點餐", callback_data="開始點餐")],
-                                           ]),
-        chat_id=order_chat_id,
-        message_id=order_message_id
-    )
+def welcome_page(message, order_data):
+    message.edit_text(text='{}\n{}'.format(order_data['meet'].get_meet_name(), _welcome_page_text),
+                      reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("開始點餐", callback_data="開始點餐")]])
+                      )
 
     return "choose options"
 
@@ -97,20 +92,18 @@ def choose_options(bot, update, user_data):
     query = update.callback_query
 
     order_data = user_data[query.message.message_id]
-    order_ids = (query.message.chat_id, query.message.message_id)
 
     if query.data in ("開始點餐", "更改訂單"):
-        order_data.update(options_provider=_ai_cafe_menu.options_provider(),
-                          items_chosen=[]
-                          )
+        order_data['options_provider'] = _ai_cafe_menu.options_provider()
+        order_data['items_chosen'] = []
 
     elif query.data == "取消":
         del order_data['options_provider'], order_data['items_chosen']
 
         if 'order' in order_data:
-            return order_complete_page(bot, update, user_data, *order_ids)
+            return order_complete_page(bot, query.message, order_data)
         else:
-            return welcome_page(bot, update, user_data, *order_ids)
+            return welcome_page(query.message, order_data)
 
     order_data['items_chosen'].append(query.data)
 
@@ -121,7 +114,7 @@ def choose_options(bot, update, user_data):
         order_data['order'] = _concat_chosen_items(order_data['items_chosen'])
         del order_data['options_provider'], order_data['items_chosen']
 
-        return order_complete_page(bot, update, user_data, *order_ids)
+        return order_complete_page(bot, query, order_data)
 
     # TODO  auto resize the keyboard layout
     keyboard = [
@@ -129,34 +122,25 @@ def choose_options(bot, update, user_data):
         [InlineKeyboardButton("取消", callback_data="取消")]
     ]
 
-    bot.edit_message_text(text=text,
-                          reply_markup=InlineKeyboardMarkup(keyboard),
-                          chat_id=order_ids[0],
-                          message_id=order_ids[1]
-                          )
+    query.message.edit_text(text=text,
+                            reply_markup=InlineKeyboardMarkup(keyboard)
+                            )
 
     return "choose options"
 
 
-def order_complete_page(bot, update, user_data, order_chat_id, order_message_id):
-    order_data = user_data[order_message_id]
-
-    bot.edit_message_text(
-        text="{}\n訂單完成:\n{}".format(order_data['meet'].get_meet_name(), order_data['order']),
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("更改訂單", callback_data="更改訂單")],
-                                           ]
-                                          ),
-        chat_id=order_chat_id,
-        message_id=order_message_id
-    )
+def order_complete_page(bot, query, order_data):
+    query.message.edit_text(text="{}\n訂單完成:\n{}".format(order_data['meet'].get_meet_name(), order_data['order']),
+                            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("更改訂單", callback_data="更改訂單")]])
+                            )
 
     # TODO  save order per user
-    user = update.callback_query.from_user
+    user = query.from_user
     data = {
         str(user.id): {'order': order_data['order'],
                        'username': user.username,
                        'first_name': user.first_name,
-                       'order_ids': (order_chat_id, order_message_id),
+                       'order_ids': (query.message.chat_id, query.message.message_id),
                        'show_up': False,
                        'paid': False,
                        'timestamp': '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.today()),
@@ -167,23 +151,6 @@ def order_complete_page(bot, update, user_data, order_chat_id, order_message_id)
     _add_order_and_update_participators_list(bot, order_data['meet'], data)
 
     return "order complete"
-
-
-@log
-def stop_ordering(bot, update, user_data):
-    bot.edit_message_text(
-        text='{}\n最後訂單: {}'.format(_stop_ordering_text,
-                                   user_data.get('order', '你沒有填寫 QwQ')
-                                   ),
-
-        **user_data['order_message_ids']
-    )
-
-    # TODO  I wanna send some TOKEN or QRCode to final message
-    # TODO  do something processing data
-
-    user_data.clear()
-    return ConversationHandler.END
 
 
 order_conv_handler = ConversationHandler(

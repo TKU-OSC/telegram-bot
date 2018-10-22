@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from tkuosc_bot.instructions.conversations.order import order_conv_handler
-from tkuosc_bot.instructions.conversations.new_meet import create_meet_up_conv_handler
+from tkuosc_bot.instructions.conversations.meet import create_meet_up_conv_handler
 from tkuosc_bot.instructions.basic import help_
 from tkuosc_bot.instructions.debug import get_me, chat_id, chat_data_, user_data_, error, chat_member, user
 
@@ -11,12 +11,8 @@ from telegram import ParseMode
 
 
 def test(bot, update):
-    chat_mem = bot.get_chat_member(chat_id=update.message.chat_id,
-                                   user_id=134279938)
-    update.message.reply_text("`" + str(chat_mem.user) + "`",
-                              quote=True,
-                              parse_mode=ParseMode.MARKDOWN
-                              )
+    print(update.callback_query.data)
+    bot.answer_callback_query(update.callback_query.id, text='Sorry, this is not for you. QwQ', show_alert=True)
 
 
 def main(token):
@@ -24,7 +20,7 @@ def main(token):
     updater = Updater(token)
 
     # under develop instruction
-    updater.dispatcher.add_handler(CommandHandler('test', test))
+    # updater.dispatcher.add_handler(CallbackQueryHandler(test))
 
     # basic instruction
     updater.dispatcher.add_handler(CommandHandler('help', help_))

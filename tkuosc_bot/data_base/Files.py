@@ -13,7 +13,7 @@ class Meet:
         self.name = None
         self.participators_msg_id = None
 
-    def initialize_meet(self, meet_name, participators_msg_id):
+    def open(self, meet_name, participators_msg_id):
         file_name = os.path.join(Meet._dir_path,
                                  'open/{}.json'.format(self.meet_id))
         with open(file_name, 'w') as meet_data:
@@ -24,9 +24,14 @@ class Meet:
             }
             json.dump(data, meet_data)
 
+    def close(self):
+        os.rename(os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id)),
+                  os.path.join(Meet._dir_path, 'close/{}.json'.format(self.meet_id))
+                  )
+
     def is_open_meet(self):
         """
-        Check if the meet is open by pass its meet ids.
+        Check whether if the meet is open.
         :return: Boolean
         """
         dir_path = os.path.join(Meet._dir_path, 'open/')
@@ -34,12 +39,15 @@ class Meet:
 
     def access_data(self):
         """
-        Pass the meet ids, return the dictionary of meet data.
+        Return the dictionary of the data of the open meet.
         :return: dictionary
         """
         file_name = os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id))
         with open(file_name, 'r') as data_file:
             return json.load(data_file)
+
+    def has_user(self, uid):
+        return str(uid) in self.access_data()['order_users']
 
     def get_meet_name(self):
         if self.name is None:

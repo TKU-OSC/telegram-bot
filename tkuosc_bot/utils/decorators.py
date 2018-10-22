@@ -6,6 +6,25 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
+def admins_only_with_query(status):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(bot, update, *args, **kwargs):
+            if bot.get_chat_member(update.callback_query.message.chat_id, update.callback_query.from_user.id).status \
+                    not in ('administrator', 'creator'):
+                bot.answer_callback_query(update.callback_query.id,
+                                          text='Sorry, this is not for you. QwQ',
+                                          show_alert=True)
+
+                return status
+
+            return func(bot, update, *args, **kwargs)
+
+        return wrapped
+
+    return decorator
+
+
 def admins_only(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
