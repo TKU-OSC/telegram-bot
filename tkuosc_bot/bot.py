@@ -3,8 +3,8 @@
 from telegram.ext import Updater, CommandHandler
 
 from tkuosc_bot.commands.basic import help_
-from tkuosc_bot.commands.conversations.meet import create_meet_up_conv_handler
-from tkuosc_bot.commands.conversations.order import order_conv_handler
+from tkuosc_bot.commands.conversations.meet import meet_handler
+from tkuosc_bot.commands.conversations.order import order_handler
 from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
 from tkuosc_bot.commands.restricted import lsop, addop, deop
 
@@ -41,10 +41,10 @@ def main(token):
     # TODO: Make admin conversation to checkin or cashing (allen0099)
 
     # Ordering conversation
-    updater.dispatcher.add_handler(order_conv_handler)
+    updater.dispatcher.add_handler(order_handler)
 
     # Create meet up conversation
-    updater.dispatcher.add_handler(create_meet_up_conv_handler)
+    updater.dispatcher.add_handler(meet_handler)
 
     # Error handler, must at the end
     updater.dispatcher.add_error_handler(error)

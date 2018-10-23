@@ -1,18 +1,18 @@
 import logging
 import os
 from functools import wraps
+from tkuosc_bot.data_base import Files
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def admins_only_with_query(status):
+def restricted_with_query(admin_config, status):
     def decorator(func):
         @wraps(func)
         def wrapped(bot, update, *args, **kwargs):
-            if bot.get_chat_member(update.callback_query.message.chat_id, update.callback_query.from_user.id).status \
-                    not in ('administrator', 'creator'):
+            if not Files.Admin(admin_config).is_admin(update.effective_user.id):
                 bot.answer_callback_query(update.callback_query.id,
                                           text='Sorry, this is not for you. QwQ',
                                           show_alert=True)
@@ -26,19 +26,19 @@ def admins_only_with_query(status):
     return decorator
 
 
-def restricted(func):
-    @wraps(func)
-    def wrapped(bot, update, *args, **kwargs):
-        user_id = update.effective_user.id
-        with open(os.path.join(os.path.dirname(__file__), "../../files/TKUOSC.txt"), 'r') as data:
-            admin = {i.strip() for i in data}
-            if str(user_id) not in admin:
-                print("Unauthorized access denied for {}.".format(user_id))
-                update.message.reply_text("你沒有權限使用指令")
+def restricted(admin_config):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(bot, update, *args, **kwargs):
+            if not Files.Admin(admin_config).is_admin(update.effective_user.id):
+                update.message.reply_text("Sorry, this is not for you. QwQ")
                 return
-        return func(bot, update, *args, **kwargs)
 
-    return wrapped
+            return func(bot, update, *args, **kwargs)
+
+        return wrapped
+
+    return decorator
 
 
 def log(func):

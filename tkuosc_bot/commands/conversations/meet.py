@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
 
-from tkuosc_bot.utils.decorators import restricted, log, choose_log, admins_only_with_query
+from tkuosc_bot.utils.decorators import restricted, log, choose_log, restricted_with_query
 from tkuosc_bot.data_base import Files
 
 import base64
@@ -18,7 +18,7 @@ _end_text_in_private_chat = "收單嚕 ～"
 
 
 @log
-@restricted
+@restricted('TKUOSC.txt')
 def create_meet_up(bot, update):
     link_message = update.message.reply_text(_loading_text)
 
@@ -55,7 +55,7 @@ def choose_date(bot, update, link_message):
 
 
 @choose_log
-@admins_only_with_query("choose date")
+@restricted_with_query('TKUOSC.txt', "choose date")
 def order_link(bot, update):
     query = update.callback_query
 
@@ -85,7 +85,7 @@ def order_link(bot, update):
 
 def list_participators(bot, update, meet_ids, meet_name):
     meet = Files.Meet(*meet_ids)
-    participate_message = bot.send_message(text=meet.list_participators_with_markdown(),
+    participate_message = bot.send_message(text='*participators*:\n' + '    Nobody Now...',
                                            chat_id=meet_ids[0],
                                            reply_to_message_id=meet_ids[1],
                                            parse_mode='Markdown'
@@ -103,9 +103,10 @@ def end_button(message, meet):
     return "end_request"
 
 
-@admins_only_with_query("end_request")
+@restricted_with_query('TKUOSC.txt', "end_request")
 def confirm_button(bot, update):
-    meet = Files.Meet(update.callback_query.message.chat_id, update.callback_query.message.message_id)
+    meet = Files.Meet(update.callback_query.message.reply_to_message.chat_id,
+                      update.callback_query.message.reply_to_message.message_id)
 
     update.callback_query.message.edit_text(text=meet.list_participators_with_markdown(),
                                             parse_mode='Markdown',
@@ -116,7 +117,7 @@ def confirm_button(bot, update):
     return "confirm"
 
 
-@admins_only_with_query("confirm")
+@restricted_with_query('TKUOSC.txt', "confirm")
 def end_order(bot, update):
     meet_message = update.callback_query.message.reply_to_message
     meet = Files.Meet(meet_message.chat_id, meet_message.message_id)
@@ -152,7 +153,7 @@ def end_order(bot, update):
         return end_button(update.callback_query.message, meet)
 
 
-create_meet_up_conv_handler = ConversationHandler(
+meet_handler = ConversationHandler(
     entry_points=[CommandHandler('lets_meet', create_meet_up)],
     states={
         "choose date": [CallbackQueryHandler(order_link)],

@@ -114,11 +114,14 @@ class Admin:
     _dir_path = os.path.join(os.path.dirname(__file__), '../../files/admin/')
 
     def __init__(self, admin):
-        self.admin
+        self.admin = admin
 
     def list(self):
         """
-        :return: a tuples of admin
+        :return: a list of admin
         """
         with open(os.path.join(Admin._dir_path, self.admin)) as admin_file:
-            return (admin for admin in admin_file)
+            return [admin.strip() for admin in admin_file]
+
+    def is_admin(self, uid):
+        return str(uid) in self.list()

@@ -145,7 +145,7 @@ def order_complete_page(bot, query, order_data):
     return "order complete"
 
 
-order_conv_handler = ConversationHandler(
+order_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start, pass_args=True, pass_user_data=True)],
     states={
         "choose options": [CallbackQueryHandler(choose_options, pass_user_data=True)],
