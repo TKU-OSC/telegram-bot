@@ -1,5 +1,5 @@
 from telegram import ParseMode, ChatAction
-from tkuosc_bot.utils.decorators import log, send_action, logger
+from tkuosc_bot.utils.decorators import log, send_action
 
 
 @log

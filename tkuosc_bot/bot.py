@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from telegram.ext import Updater, CommandHandler
 
 from tkuosc_bot.commands.basic import help_
@@ -9,12 +8,19 @@ from tkuosc_bot.commands.conversations.order import order_conv_handler
 from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
 from tkuosc_bot.commands.restricted import lsop, addop, deop
 
+def test(bot, update):
+    print(update.callback_query.data)
+    bot.answer_callback_query(update.callback_query.id, text='Sorry, this is not for you. QwQ', show_alert=True)
 
 def main(token):
     # Create the Updater and pass it your bot's token.
     updater = Updater(token)
 
+    # under develop instruction
+    # updater.dispatcher.add_handler(CallbackQueryHandler(test))
+
     # Basic commands
+
     updater.dispatcher.add_handler(CommandHandler('help', help_))
 
     # Debug commands
