@@ -13,7 +13,6 @@ import datetime
 _loading_text = 'Loading...'
 _choose_date_text = 'choose a date to meet'
 _link_button_text = '點我點餐'
-_no_participator_text = 'Nobody QwQ'
 _easter_egg = b'VEtVT1NDe0AxNTNrNDF9'  # QwQ
 _end_text_in_private_chat = "收單嚕 ～"
 
@@ -85,23 +84,19 @@ def order_link(bot, update):
 
 
 def list_participators(bot, update, meet_ids, meet_name):
-    participate_message = bot.send_message(text='*participators:*\n\n    {}'.format(_no_participator_text),
+    meet = Files.Meet(*meet_ids)
+    participate_message = bot.send_message(text=meet.list_participators_with_markdown(),
                                            chat_id=meet_ids[0],
                                            reply_to_message_id=meet_ids[1],
                                            parse_mode='Markdown'
                                            )
 
-    Files.Meet(*meet_ids).open(meet_name, participate_message.message_id)
-    return end_button(participate_message)
+    meet.open(meet_name, participate_message.message_id)
+    return end_button(participate_message, meet)
 
 
-def end_button(message):
-    # meet = Files.Meet(message.chat_id, message.message_id)
-    # text = '*participators:\n*' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
-    #     uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
-    #                                         for uid, data in meet.access_data()['order_users'].items())
-
-    message.edit_text(text=message.text,
+def end_button(message, meet):
+    message.edit_text(text=meet.list_participators_with_markdown(),
                       parse_mode='Markdown',
                       reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('收單', callback_data='收單')]])
                       )
@@ -110,12 +105,9 @@ def end_button(message):
 
 @admins_only_with_query("end_request")
 def confirm_button(bot, update):
-    # meet = Files.Meet(update.callback_query.message.chat_id, update.callback_query.message.message_id)
-    # text = '*participators:\n*' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
-    #     uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
-    #                                         for uid, data in meet.access_data()['order_users'].items())
+    meet = Files.Meet(update.callback_query.message.chat_id, update.callback_query.message.message_id)
 
-    update.callback_query.message.edit_text(text=update.callback_query.message.text,
+    update.callback_query.message.edit_text(text=meet.list_participators_with_markdown(),
                                             parse_mode='Markdown',
                                             reply_markup=InlineKeyboardMarkup(
                                                 [[InlineKeyboardButton('是的', callback_data='是的'),
@@ -126,9 +118,10 @@ def confirm_button(bot, update):
 
 @admins_only_with_query("confirm")
 def end_order(bot, update):
+    meet_message = update.callback_query.message.reply_to_message
+    meet = Files.Meet(meet_message.chat_id, meet_message.message_id)
+
     if update.callback_query.data == '是的':
-        meet_message = update.callback_query.message.reply_to_message
-        meet = Files.Meet(meet_message.chat_id, meet_message.message_id)
 
         for uid, data in meet.access_data()['order_users'].items():
             bot.edit_message_text(
@@ -148,7 +141,7 @@ def end_order(bot, update):
 
                                )
 
-        update.callback_query.message.edit_text(text=update.callback_query.message.text,
+        update.callback_query.message.edit_text(text=meet.list_participators_with_markdown(),
                                                 parse_mode='Markdown',
                                                 )
 
@@ -156,7 +149,7 @@ def end_order(bot, update):
         return ConversationHandler.END
 
     else:
-        return end_button(update.callback_query.message)
+        return end_button(update.callback_query.message, meet)
 
 
 create_meet_up_conv_handler = ConversationHandler(

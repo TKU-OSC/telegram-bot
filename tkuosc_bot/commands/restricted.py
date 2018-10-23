@@ -9,7 +9,7 @@ from tkuosc_bot.utils.decorators import log, restricted, send_action
 @restricted
 @send_action(ChatAction.TYPING)
 def lsop(bot, update):
-    with open(os.path.join(os.path.dirname(__file__), "../../files/admin_list.txt"), 'r') as data:
+    with open(os.path.join(os.path.dirname(__file__), "../../files/TKUOSC.txt"), 'r') as data:
         admins = {i.strip() for i in data}
         str_admin = '\n'.join(str(admin) for admin in sorted(admins))
         text = "管理員 UID：\n" + str_admin
@@ -23,7 +23,7 @@ def addop(bot, update, args):
     if not args:
         update.message.reply_text("請輸入 op 的 UID")
     else:
-        with open(os.path.join(os.path.dirname(__file__), "../../files/admin_list.txt"), 'r+') as data:
+        with open(os.path.join(os.path.dirname(__file__), "../../files/TKUOSC.txt"), 'r+') as data:
             admins = {i.strip() for i in data}
             for item in args:
                 admins.add(item)
@@ -40,7 +40,7 @@ def deop(bot, update, args):
     if not args:
         update.message.reply_text("請輸入 op 的 UID")
     else:
-        with open(os.path.join(os.path.dirname(__file__), "../../files/admin_list.txt"), 'r+') as data:
+        with open(os.path.join(os.path.dirname(__file__), "../../files/TKUOSC.txt"), 'r+') as data:
             admins = {i.strip() for i in data}
             for item in args:
                 if item == str(update.effective_user.id):

@@ -30,7 +30,7 @@ def restricted(func):
     @wraps(func)
     def wrapped(bot, update, *args, **kwargs):
         user_id = update.effective_user.id
-        with open(os.path.join(os.path.dirname(__file__), "../../files/admin_list.txt"), 'r') as data:
+        with open(os.path.join(os.path.dirname(__file__), "../../files/TKUOSC.txt"), 'r') as data:
             admin = {i.strip() for i in data}
             if str(user_id) not in admin:
                 print("Unauthorized access denied for {}.".format(user_id))

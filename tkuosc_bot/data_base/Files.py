@@ -72,9 +72,14 @@ class Meet:
             data_file.truncate()
 
     def list_participators_with_markdown(self):
-        return '*participators*:\n' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
-            uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
-                                                for uid, data in self.access_data()['order_users'].items())
+        order_users = self.access_data()['order_users']
+        if order_users:
+            text = '*participators*:\n' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
+                uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
+                                                    for uid, data in order_users.items())
+        else:
+            text = '*participators*:\n' + '  Nobody Now...'
+        return text
 
 
 class Menu:
@@ -103,3 +108,17 @@ class Menu:
 
             for must_choose_attribute in drinks_list.items():
                 yield '{}: {}'.format(must_choose_title, must_choose_attribute[0]), tuple(must_choose_attribute[1])
+
+
+class Admin:
+    _dir_path = os.path.join(os.path.dirname(__file__), '../../files/admin/')
+
+    def __init__(self, admin):
+        self.admin
+
+    def list(self):
+        """
+        :return: a tuples of admin
+        """
+        with open(os.path.join(Admin._dir_path, self.admin)) as admin_file:
+            return (admin for admin in admin_file)
