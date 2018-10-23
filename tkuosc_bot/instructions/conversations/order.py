@@ -80,7 +80,7 @@ def start_ordering(bot, update, user_data, meet):
 
 
 def welcome_page(message, order_data):
-    message.edit_text(text='{}\n{}'.format(order_data['meet'].get_meet_name(), _welcome_page_text),
+    message.edit_text(text='{}\n{}'.format(order_data['meet'].name, _welcome_page_text),
                       reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("開始點餐", callback_data="開始點餐")]])
                       )
 
@@ -130,7 +130,7 @@ def choose_options(bot, update, user_data):
 
 
 def order_complete_page(bot, query, order_data):
-    query.message.edit_text(text="{}\n訂單完成:\n{}".format(order_data['meet'].get_meet_name(), order_data['order']),
+    query.message.edit_text(text="{}\n訂單完成:\n{}".format(order_data['meet'].name, order_data['order']),
                             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("更改訂單", callback_data="更改訂單")]])
                             )
 

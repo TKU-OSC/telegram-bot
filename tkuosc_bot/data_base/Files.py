@@ -10,8 +10,20 @@ class Meet:
         self.msg_id = message_id
 
         self.meet_id = '{}{}'.format(message_id, chat_id)
-        self.name = None
-        self.participators_msg_id = None
+        self._name = None
+        self._participators_msg_id = None
+
+    @property
+    def name(self):
+        if self._name is None:
+            self._name = self.access_data()['meet_name']
+        return self._name
+
+    @property
+    def participators_msg_id(self):
+        if self._participators_msg_id is None:
+            self._participators_msg_id = self.access_data()['participators_msg_id']
+        return self._participators_msg_id
 
     def open(self, meet_name, participators_msg_id):
         file_name = os.path.join(Meet._dir_path,
@@ -48,16 +60,6 @@ class Meet:
 
     def has_user(self, uid):
         return str(uid) in self.access_data()['order_users']
-
-    def get_meet_name(self):
-        if self.name is None:
-            self.name = self.access_data()['meet_name']
-        return self.name
-
-    def get_participators_msg_id(self):
-        if self.participators_msg_id is None:
-            self.participators_msg_id = self.access_data()['participators_msg_id']
-        return self.participators_msg_id
 
     def add_order(self, order_data):
         file_name = os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id))
@@ -96,4 +98,3 @@ class Menu:
 
             for must_choose_attribute in drinks_list.items():
                 yield '{}: {}'.format(must_choose_title, must_choose_attribute[0]), tuple(must_choose_attribute[1])
-
