@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
 
-from tkuosc_bot.utils.decorators import admins_only, log, choose_log, admins_only_with_query
+from tkuosc_bot.utils.decorators import restricted, log, choose_log, admins_only_with_query
 from tkuosc_bot.data_base import Files
 
 import base64
@@ -19,7 +19,7 @@ _end_text_in_private_chat = "收單嚕 ～"
 
 
 @log
-@admins_only
+@restricted
 def create_meet_up(bot, update):
     link_message = update.message.reply_text(_loading_text)
 
@@ -133,7 +133,7 @@ def end_order(bot, update):
         for uid, data in meet.access_data()['order_users'].items():
             bot.edit_message_text(
                 text='{}\n{}\n飲品:\n{}'.format(_end_text_in_private_chat,
-                                              meet.get_meet_name(),
+                                              meet.name,
                                               data['order']
                                               ),
 

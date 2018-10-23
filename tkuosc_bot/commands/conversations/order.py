@@ -37,7 +37,6 @@ _loading_text = 'Loading...'
 _welcome_page_text = '開放點餐囉~'
 _ai_cafe_menu = Files.Menu('Ai_cafe_drinks.json')
 _stop_ordering_text = "結束惹 OwO\n我想放點 TOKEN 或 QRCode"
-_ai_cafe_menu = files.Menu('Ai_cafe_drinks.json')
 
 
 @log
