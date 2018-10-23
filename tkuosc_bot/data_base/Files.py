@@ -74,11 +74,11 @@ class Meet:
     def list_participators_with_markdown(self):
         order_users = self.access_data()['order_users']
         if order_users:
-            text = '*participators*:\n' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
+            text = '*Participators:*\n' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
                 uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
                                                     for uid, data in order_users.items())
         else:
-            text = '*participators*:\n' + '  Nobody Now...'
+            text = '*Participators:*\n' + '    Nobody now...'
         return text
 
 

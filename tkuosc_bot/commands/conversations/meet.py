@@ -85,7 +85,7 @@ def order_link(bot, update):
 
 def list_participators(bot, update, meet_ids, meet_name):
     meet = Files.Meet(*meet_ids)
-    participate_message = bot.send_message(text='*participators*:\n' + '    Nobody Now...',
+    participate_message = bot.send_message(text=_loading_text,
                                            chat_id=meet_ids[0],
                                            reply_to_message_id=meet_ids[1],
                                            parse_mode='Markdown'
