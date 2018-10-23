@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from tkuosc_bot.instructions.conversations.order import order_conv_handler
-from tkuosc_bot.instructions.conversations.meet import create_meet_up_conv_handler
-from tkuosc_bot.instructions.basic import help_
-from tkuosc_bot.instructions.debug import get_me, chat_id, chat_data_, user_data_, error, chat_member, user
+from tkuosc_bot.commands.conversations.order import order_conv_handler
+from tkuosc_bot.commands.conversations.meet import create_meet_up_conv_handler
+from tkuosc_bot.commands.basic import help_
+from tkuosc_bot.commands.debug import get_me, chat_id, chat_data_, user_data_, error, chat_member, user
 
 
 from telegram import ParseMode
