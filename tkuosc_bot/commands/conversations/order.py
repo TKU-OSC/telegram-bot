@@ -15,21 +15,6 @@ def _concat_chosen_items(items):
     return '{} ({})'.format(*items[-2:])
 
 
-def _add_order_and_update_participators_list(bot, meet, data):
-    meet.add_order(data)
-
-    text = '*participators:\n*' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
-        uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
-                                            for uid, data in meet.access_data()['order_users'].items())
-
-    bot.edit_message_text(text=text,
-                          chat_id=meet.chat_id,
-                          message_id=meet.get_participators_msg_id(),
-                          parse_mode='Markdown',
-                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('收單', callback_data='收單')]])
-                          )
-
-
 # TODO edit some config text
 # _loading_text = random.choice(('這裡是 Loading 文字', '我是基德，是個 bot', '幫我想幹話'))  # 每週幹話，誰敢刪這行 ?
 
@@ -144,12 +129,18 @@ def order_complete_page(bot, query, order_data):
                        'order_ids': (query.message.chat_id, query.message.message_id),
                        'show_up': False,
                        'paid': False,
-                       'timestamp': '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.today()),
-
+                       'timestamp': '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.today())
                        }
     }
 
-    _add_order_and_update_participators_list(bot, order_data['meet'], data)
+    order_data['meet'].add_order(data)
+
+    bot.edit_message_text(text=order_data['meet'].list_participators_with_markdown(),
+                          chat_id=order_data['meet'].chat_id,
+                          message_id=order_data['meet'].participators_msg_id,
+                          parse_mode='Markdown',
+                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('收單', callback_data='收單')]])
+                          )
 
     return "order complete"
 

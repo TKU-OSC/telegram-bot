@@ -71,6 +71,11 @@ class Meet:
             json.dump(meet_data, data_file)
             data_file.truncate()
 
+    def list_participators_with_markdown(self):
+        return '*participators*:\n' + '\n'.join('[{name}](tg://user?id={uid})  {order}'.format(
+            uid=uid, name=data['username'] if data['username'] else data['first_name'], **data)
+                                                for uid, data in self.access_data()['order_users'].items())
+
 
 class Menu:
     _dir_path = os.path.join(os.path.dirname(__file__), '../../files/menu/')
