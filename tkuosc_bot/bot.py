@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from tkuosc_bot.commands.conversations.order import order_conv_handler
-from tkuosc_bot.commands.conversations.meet import create_meet_up_conv_handler
+from telegram.ext import Updater, CommandHandler
+
 from tkuosc_bot.commands.basic import help_
-from tkuosc_bot.commands.debug import get_me, chat_id, chat_data_, user_data_, error, chat_member, user
-
-
-from telegram import ParseMode
-
+from tkuosc_bot.commands.conversations.new_meet import create_meet_up_conv_handler
+from tkuosc_bot.commands.conversations.order import order_conv_handler
+from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
+from tkuosc_bot.commands.restricted import lsop, addop, deop
 
 def test(bot, update):
     print(update.callback_query.data)
     bot.answer_callback_query(update.callback_query.id, text='Sorry, this is not for you. QwQ', show_alert=True)
-
 
 def main(token):
     # Create the Updater and pass it your bot's token.
@@ -22,25 +19,33 @@ def main(token):
     # under develop instruction
     # updater.dispatcher.add_handler(CallbackQueryHandler(test))
 
-    # basic instruction
+    # Basic commands
+
     updater.dispatcher.add_handler(CommandHandler('help', help_))
 
-    # debug instruction
-    updater.dispatcher.add_handler(CommandHandler('get_me', get_me))
-    updater.dispatcher.add_handler(CommandHandler('chat_id', chat_id))
+    # Debug commands
+    updater.dispatcher.add_handler(CommandHandler('getme', getme))
+    updater.dispatcher.add_handler(CommandHandler('getid', getid))
     updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))
     updater.dispatcher.add_handler(CommandHandler('user', user))
 
-    # Error handler
-    updater.dispatcher.add_error_handler(error)
+    # Admin commands
+    updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
+    updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
+    updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
 
-    # ordering conversation
+    # TODO: Make admin conversation to checkin or cashing (allen0099)
+
+    # Ordering conversation
     updater.dispatcher.add_handler(order_conv_handler)
 
-    # create meet up conversation
+    # Create meet up conversation
     updater.dispatcher.add_handler(create_meet_up_conv_handler)
+
+    # Error handler, must at the end
+    updater.dispatcher.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()

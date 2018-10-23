@@ -4,16 +4,23 @@ from tkuosc_bot.utils.decorators import log, send_action
 
 @log
 @send_action(ChatAction.TYPING)
-def get_me(bot, update):
-    update.message.reply_text(text="`" + str(update.message.from_user.id) + "`",
-                              quote=True,
-                              parse_mode=ParseMode.MARKDOWN
-                              )
+def getme(bot, update):
+    if update.message.reply_to_message:
+        reply_user = update.message.reply_to_message.from_user
+        update.message.reply_text(text="`" + str(reply_user.id) + "`",
+                                  quote=True,
+                                  parse_mode=ParseMode.MARKDOWN
+                                  )
+    else:
+        update.message.reply_text(text="`" + str(update.message.from_user.id) + "`",
+                                  quote=True,
+                                  parse_mode=ParseMode.MARKDOWN
+                                  )
 
 
 @log
 @send_action(ChatAction.TYPING)
-def chat_id(bot, update):
+def getid(bot, update):
     update.message.reply_text(text="`" + str(update.message.chat.id) + "`",
                               quote=True,
                               parse_mode=ParseMode.MARKDOWN
