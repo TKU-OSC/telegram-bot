@@ -113,15 +113,34 @@ class Menu:
 class Admin:
     _dir_path = os.path.join(os.path.dirname(__file__), '../../files/admin/')
 
-    def __init__(self, admin):
-        self.admin = admin
+    def __init__(self, file):
+        self.file = file
+
+    def add(self, admin, *args):
+        admins = self.list()
+        admins.add(str(admin))
+        for i in args:
+            admins.add(str(i))
+        self.write(admins)
+        return admins
+
+    def remove(self, admin, *args):
+        admins = self.list()
+        admins.remove(str(admin))
+        for i in args:
+            admins.remove(str(i))
+        self.write(admins)
+        return admins
 
     def list(self):
-        """
-        :return: a list of admin
-        """
-        with open(os.path.join(Admin._dir_path, self.admin)) as admin_file:
-            return [admin.strip() for admin in admin_file]
+        with open(os.path.join(Admin._dir_path, self.file)) as adminFile:
+            return {admin.strip() for admin in adminFile}
+
+    def write(self, admins):
+        with open(os.path.join(Admin._dir_path, self.file), 'r+') as adminFile:
+            adminFile.seek(0)
+            adminFile.writelines("{}\n".format(i) for i in sorted(admins))
+            adminFile.truncate()
 
     def is_admin(self, uid):
         return str(uid) in self.list()
