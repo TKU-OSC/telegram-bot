@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 from tkuosc_bot.commands.basic import help_, command_unknown
@@ -7,11 +8,6 @@ from tkuosc_bot.commands.conversations.meet import meet_handler
 from tkuosc_bot.commands.conversations.order import order_handler
 from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
 from tkuosc_bot.commands.restricted import lsop, addop, deop
-
-
-def test(bot, update):
-    print(update.callback_query.data)
-    bot.answer_callback_query(update.callback_query.id, text='Sorry, this is not for you. QwQ', show_alert=True)
 
 
 def main(token):
