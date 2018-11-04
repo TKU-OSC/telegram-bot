@@ -1,3 +1,4 @@
+import logging
 from telegram import ParseMode, ChatAction
 from tkuosc_bot.utils.decorators import log, send_action
 
@@ -20,8 +21,17 @@ def getme(bot, update):
 
 @log
 @send_action(ChatAction.TYPING)
-def getid(bot, update):
+def getcid(bot, update):
     update.message.reply_text(text="`" + str(update.message.chat.id) + "`",
+                              quote=True,
+                              parse_mode=ParseMode.MARKDOWN
+                              )
+
+
+@log
+@send_action(ChatAction.TYPING)
+def getmid(bot, update):
+    update.message.reply_text(text="`" + str(update.message.reply_to_message.message_id) + "`",
                               quote=True,
                               parse_mode=ParseMode.MARKDOWN
                               )
@@ -67,4 +77,4 @@ def user_data_(bot, update, user_data):
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, error)
+    logging.getLogger(__name__).warning('Update "%s" caused error "%s"', update, error)

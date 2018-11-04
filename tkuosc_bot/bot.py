@@ -4,14 +4,17 @@ from telegram.ext import Updater, CommandHandler
 
 from tkuosc_bot.commands.basic import help_
 from tkuosc_bot.commands.conversations.meet import meet_handler
-from tkuosc_bot.commands.conversations.order import order_handler
-from tkuosc_bot.commands.debug import getme, getid, chat_data_, user_data_, error, chat_member, user
+from tkuosc_bot.commands.conversations.order import start_order
+from tkuosc_bot.commands.debug import getme, getcid, getmid, chat_data_, user_data_, error, chat_member, user
 from tkuosc_bot.commands.restricted import lsop, addop, deop
 
 
 def test(bot, update):
-    print(update.callback_query.data)
-    bot.answer_callback_query(update.callback_query.id, text='Sorry, this is not for you. QwQ', show_alert=True)
+    chat_member = bot.get_chat_member(chat_id=update.message.chat_id,
+                                      user_id="@isekai")
+
+    print(chat_member)
+    update.message.reply_text(text=str(chat_member))
 
 
 def main(token):
@@ -20,6 +23,7 @@ def main(token):
 
     # under develop instruction
     # updater.dispatcher.add_handler(CallbackQueryHandler(test))
+    updater.dispatcher.add_handler(CommandHandler('test', test))
 
     # Basic commands
 
@@ -27,7 +31,8 @@ def main(token):
 
     # Debug commands
     updater.dispatcher.add_handler(CommandHandler('getme', getme))
-    updater.dispatcher.add_handler(CommandHandler('getid', getid))
+    updater.dispatcher.add_handler(CommandHandler('getcid', getcid))
+    updater.dispatcher.add_handler(CommandHandler('getmid', getmid))
     updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
     updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))
@@ -40,11 +45,11 @@ def main(token):
 
     # TODO: Make admin conversation to checkin or cashing (allen0099)
 
-    # Ordering conversation
-    updater.dispatcher.add_handler(order_handler)
-
     # Create meet up conversation
     updater.dispatcher.add_handler(meet_handler)
+
+    # Ordering conversation
+    updater.dispatcher.add_handler(start_order)
 
     # Error handler, must at the end
     updater.dispatcher.add_error_handler(error)

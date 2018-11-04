@@ -137,8 +137,9 @@ def end_order(bot, update):
 
         meet_message.edit_text(text="meow ~",
                                reply_markup=InlineKeyboardMarkup(
-                                   [[InlineKeyboardButton('報到', callback_data='報到'),
-                                     InlineKeyboardButton('我要繳費', callback_data='我要繳費')]]),
+                                   [[InlineKeyboardButton('我到場了', callback_data='我到場了'),
+                                     InlineKeyboardButton('我要繳費', callback_data='我要繳費'),
+                                     InlineKeyboardButton('我拿到飲料了', callback_data='我拿到飲料了')]]),
 
                                )
 
@@ -157,8 +158,8 @@ meet_handler = ConversationHandler(
     entry_points=[CommandHandler('lets_meet', create_meet_up)],
     states={
         "choose date": [CallbackQueryHandler(order_link)],
-        "end_request": [CallbackQueryHandler(confirm_button)],
-        "confirm": [CallbackQueryHandler(end_order)]
+        "end_request": [CallbackQueryHandler(confirm_button, pattern='^收單$')],
+        "confirm": [CallbackQueryHandler(end_order, pattern='^不，我開玩笑的$|^是的$')]
     },
     fallbacks=[],
     per_user=False

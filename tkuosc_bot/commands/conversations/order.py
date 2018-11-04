@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ChatAction
 from telegram.error import BadRequest
-from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
+from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler, Handler, Filters
 
 from tkuosc_bot.utils.decorators import log, choose_log, send_action
 from tkuosc_bot.data_base import Files
@@ -53,15 +53,17 @@ def start(bot, update, args, user_data):
 def start_ordering(bot, update, user_data, meet):
     order_message = update.message.reply_text(text=_loading_text)
 
-    for mid, data in user_data.items():
-        if not meet.is_open_meet():
-            del user_data[mid]
+    # Clear useless cache
+    # user_data = {mid: data for mid, data in user_data.items() if data['meet'].is_open_meet()}
+
+    # for mid, data in user_data.items():
+    #     if not data['meet'].is_open_meet():
+    #         del user_data[mid]
 
     data = {
         'meet': meet
     }
     user_data[order_message.message_id] = data
-
     return welcome_page(order_message, data)
 
 
@@ -76,7 +78,6 @@ def welcome_page(message, order_data):
 @choose_log
 def choose_options(bot, update, user_data):
     query = update.callback_query
-
     order_data = user_data[query.message.message_id]
 
     if query.data in ("開始點餐", "更改訂單"):
@@ -117,7 +118,10 @@ def choose_options(bot, update, user_data):
 
 def order_complete_page(bot, query, order_data):
     query.message.edit_text(text="{}\n訂單完成:\n{}".format(order_data['meet'].name, order_data['order']),
-                            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("更改訂單", callback_data="更改訂單")]])
+                            reply_markup=InlineKeyboardMarkup([
+                                [InlineKeyboardButton("更改訂單", callback_data="更改訂單,{},{}".format(
+                                                                                        order_data['meet'].chat_id,
+                                                                                        order_data['meet'].msg_id))]])
                             )
 
     # TODO  save order per user
@@ -135,21 +139,32 @@ def order_complete_page(bot, query, order_data):
 
     order_data['meet'].add_order(data)
 
-    bot.edit_message_text(text=order_data['meet'].list_participators_with_markdown(),
-                          chat_id=order_data['meet'].chat_id,
-                          message_id=order_data['meet'].participators_msg_id,
-                          parse_mode='Markdown',
-                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('收單', callback_data='收單')]])
-                          )
-
-    return "order complete"
+    return ConversationHandler.END
 
 
-order_handler = ConversationHandler(
+# 這邊 return END 然後給一組鍵盤 call back data 包含 meet ids. choose_options 改一下 <3
+
+
+def start_order_timeout(bot, update, user_data):
+    print(update.message.message_id)
+
+
+start_order = ConversationHandler(
     entry_points=[CommandHandler('start', start, pass_args=True, pass_user_data=True)],
     states={
         "choose options": [CallbackQueryHandler(choose_options, pass_user_data=True)],
         "order complete": [CallbackQueryHandler(choose_options, pass_user_data=True)]
     },
-    fallbacks=[CommandHandler('start', start, pass_args=True, pass_user_data=True)]
+    fallbacks=[],
+    run_async_timeout=10,
+    timed_out_behavior=[Handler(start_order_timeout, pass_user_data=True)],
+    # per_message=True
+)
+
+change_order = ConversationHandler(
+    entry_points=[],
+    states={
+    },
+    fallbacks=[],
+    per_message=True
 )

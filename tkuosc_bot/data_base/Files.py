@@ -26,7 +26,7 @@ class Meet:
         return self._participators_msg_id
 
     def open(self, meet_name, participators_msg_id):
-        file_name = os.path.join(Meet._dir_path,
+        file_name = os.path.join(self.__class__._dir_path,
                                  'open/{}.json'.format(self.meet_id))
         with open(file_name, 'w') as meet_data:
             data = {
@@ -37,8 +37,8 @@ class Meet:
             json.dump(data, meet_data)
 
     def close(self):
-        os.rename(os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id)),
-                  os.path.join(Meet._dir_path, 'close/{}.json'.format(self.meet_id))
+        os.rename(os.path.join(self.__class__._dir_path, 'open/{}.json'.format(self.meet_id)),
+                  os.path.join(self.__class__._dir_path, 'close/{}.json'.format(self.meet_id))
                   )
 
     def is_open_meet(self):
@@ -46,7 +46,7 @@ class Meet:
         Check whether if the meet is open.
         :return: Boolean
         """
-        dir_path = os.path.join(Meet._dir_path, 'open/')
+        dir_path = os.path.join(self.__class__._dir_path, 'open/')
         return '{}.json'.format(self.meet_id) in os.listdir(dir_path)
 
     def access_data(self):
@@ -54,7 +54,7 @@ class Meet:
         Return the dictionary of the data of the open meet.
         :return: dictionary
         """
-        file_name = os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id))
+        file_name = os.path.join(self.__class__._dir_path, 'open/{}.json'.format(self.meet_id))
         with open(file_name, 'r') as data_file:
             return json.load(data_file)
 
@@ -62,7 +62,7 @@ class Meet:
         return str(uid) in self.access_data()['order_users']
 
     def add_order(self, order_data):
-        file_name = os.path.join(Meet._dir_path, 'open/{}.json'.format(self.meet_id))
+        file_name = os.path.join(self.__class__._dir_path, 'open/{}.json'.format(self.meet_id))
         with open(file_name, 'r+') as data_file:
             meet_data = json.load(data_file)
             meet_data['order_users'].update(order_data)
@@ -99,7 +99,7 @@ class Menu:
             it will provide another tuples of options to you until raise a StopIteration.
         :return: generator
         """
-        with open(os.path.join(Menu._dir_path, self.menu), 'r') as drinks_file:
+        with open(os.path.join(self.__class__._dir_path, self.menu), 'r') as drinks_file:
             drinks_title, drinks_list = json.load(drinks_file)
             must_choose_title = drinks_title.pop()
             for title in drinks_title:
@@ -120,7 +120,7 @@ class Admin:
         """
         :return: a list of admin
         """
-        with open(os.path.join(Admin._dir_path, self.admin)) as admin_file:
+        with open(os.path.join(self.__class__._dir_path, self.admin)) as admin_file:
             return [admin.strip() for admin in admin_file]
 
     def is_admin(self, uid):
