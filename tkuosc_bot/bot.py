@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from telegram.ext import Updater, CommandHandler, Filters
 
-from tkuosc_bot.commands.basic import help_, start
+from telegram.ext import Updater, CommandHandler, InlineQueryHandler
+
+from tkuosc_bot.commands.basic import help_
 from tkuosc_bot.commands.conversations.flow import check_in_handler, payment_handler, got_drinks_handler, \
     checkout_handler
 from tkuosc_bot.commands.conversations.meet import create_meet_handler, confirm_button, close_button, end_order
 from tkuosc_bot.commands.conversations.order import start_order
-from tkuosc_bot.commands.debug import getcid, getmid, error
+from tkuosc_bot.commands.debug import getcid, getmid, error, power_of_king, adding_admin
 
 
 def main(token):
     updater = Updater(token, workers=64)
 
     # under develop instruction
-    # updater.dispatcher.add_handler(CommandHandler('test', test, pass_job_queue=True))
 
     # Basic commands
-    updater.dispatcher.add_handler(CommandHandler('start', start, Filters.private, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler('help', help_))
 
     # Create meet up conversation
@@ -41,6 +40,11 @@ def main(token):
     # updater.dispatcher.add_handler(CommandHandler('getme', getme))
     updater.dispatcher.add_handler(CommandHandler('getcid', getcid))
     updater.dispatcher.add_handler(CommandHandler('getmid', getmid))
+
+    # The method of adding admin
+    updater.dispatcher.add_handler(InlineQueryHandler(power_of_king))
+    updater.dispatcher.add_handler(adding_admin)
+
     # updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
     # updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
     # updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))

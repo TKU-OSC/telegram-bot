@@ -1,6 +1,9 @@
 import logging
-from telegram import ParseMode, ChatAction
-from tkuosc_bot.utils.decorators import log, send_action
+from telegram import ParseMode, ChatAction, InlineQueryResultCachedPhoto, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import run_async, CallbackQueryHandler
+
+from tkuosc_bot.data_base import Files
+from tkuosc_bot.utils.decorators import log, send_action, restricted
 
 
 @log
@@ -75,6 +78,40 @@ def user_data_(bot, update, user_data):
                               )
 
 
+@run_async
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logging.getLogger(__name__).warning('Update "%s" caused error "%s"', update, error)
+
+
+@run_async
+def power_of_king(bot, update):
+    if not Files.Admin('TKUOSC.txt').is_admin(update.effective_user.id):
+        update.inline_query.answer([])
+        return
+
+    results = [
+        InlineQueryResultCachedPhoto(
+            id='Power of the King',
+            photo_file_id='AgADBQADTqgxG2djAVT_xRdWSVeeC6pa2zIABCdZY--driQVUuEBAAEC',
+            title="王之力",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("獲得王之力！", callback_data="Power of the King")]]),
+        ),
+    ]
+
+    update.inline_query.answer(results, cache_time=60, is_personal=True)
+
+
+@run_async
+def adding_admin(bot, update):
+    admin = Files.Admin('TKUOSC.txt')
+    uid = update.effective_user.id
+    if admin.is_admin(uid):
+        update.callback_query.answer(text='你已經是管理員ㄌ', show_alert=True)
+    else:
+        admin.add(uid)
+        update.callback_query.answer(text='成功加入管理員', show_alert=True)
+
+
+adding_admin = CallbackQueryHandler(adding_admin, pattern=r"^Power of the King$")
+
