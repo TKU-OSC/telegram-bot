@@ -11,7 +11,6 @@ from tkuosc_bot.commands.debug import getcid, getmid, error
 
 
 def main(token):
-    # Create the Updater and pass it your bot's token.
     updater = Updater(token, workers=64)
 
     # under develop instruction
@@ -56,12 +55,6 @@ def main(token):
     updater.dispatcher.add_error_handler(error)
 
     # Start the Bot
-    # updater.start_webhook(listen='0.0.0.0',
-    #                       port=8443,
-    #                       url_path=f'{token}',
-    #                       key='~/private.key',
-    #                       cert='~/cert.pem',
-    #                       webhook_url=f'https://128.199.146.96:8443/{token}')
     updater.start_polling()
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
