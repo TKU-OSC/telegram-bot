@@ -7,7 +7,7 @@ from tkuosc_bot.commands.conversations.flow import check_in_handler, payment_han
     checkout_handler
 from tkuosc_bot.commands.conversations.meet import create_meet_handler, confirm_button, close_button, end_order
 from tkuosc_bot.commands.conversations.order import start_order
-from tkuosc_bot.commands.debug import getcid, getmid
+from tkuosc_bot.commands.debug import getcid, getmid, error
 
 
 def main(token):
