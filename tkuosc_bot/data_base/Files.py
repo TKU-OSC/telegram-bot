@@ -186,6 +186,10 @@ class Admin:
     def __init__(self, admin):
         self.admin = admin
 
+    def add(self, uid):
+        with open(os.path.join(self.__class__._dir_path, self.admin), 'a') as admin_file:
+            admin_file.write(f'\n{uid}')
+
     def list(self):
         """
         :return: a list of admin
