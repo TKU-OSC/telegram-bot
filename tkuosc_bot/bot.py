@@ -1,58 +1,59 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, Filters
 
-from tkuosc_bot.commands.basic import help_
-from tkuosc_bot.commands.conversations.meet import meet_handler
+from tkuosc_bot.commands.basic import help_, start
+from tkuosc_bot.commands.conversations.flow import check_in_handler, payment_handler, got_drinks_handler, \
+    checkout_handler
+from tkuosc_bot.commands.conversations.meet import create_meet_handler, confirm_button, close_button, end_order
 from tkuosc_bot.commands.conversations.order import start_order
-from tkuosc_bot.commands.debug import getme, getcid, getmid, chat_data_, user_data_, error, chat_member, user
-from tkuosc_bot.commands.restricted import lsop, addop, deop
-
-
-def test(bot, update):
-    chat_member = bot.get_chat_member(chat_id=update.message.chat_id,
-                                      user_id="@isekai")
-
-    print(chat_member)
-    update.message.reply_text(text=str(chat_member))
+from tkuosc_bot.commands.debug import getcid, getmid
 
 
 def main(token):
     # Create the Updater and pass it your bot's token.
-    updater = Updater(token)
+    updater = Updater(token, workers=64)
 
     # under develop instruction
-    # updater.dispatcher.add_handler(CallbackQueryHandler(test))
-    updater.dispatcher.add_handler(CommandHandler('test', test))
+    # updater.dispatcher.add_handler(CommandHandler('test', test, pass_job_queue=True))
 
     # Basic commands
-
+    updater.dispatcher.add_handler(CommandHandler('start', start, Filters.private, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler('help', help_))
 
-    # Debug commands
-    updater.dispatcher.add_handler(CommandHandler('getme', getme))
-    updater.dispatcher.add_handler(CommandHandler('getcid', getcid))
-    updater.dispatcher.add_handler(CommandHandler('getmid', getmid))
-    updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
-    updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
-    updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))
-    updater.dispatcher.add_handler(CommandHandler('user', user))
-
-    # Admin commands
-    updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
-    updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
-    updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
-
-    # TODO: Make admin conversation to checkin or cashing (allen0099)
-
     # Create meet up conversation
-    updater.dispatcher.add_handler(meet_handler)
+    updater.dispatcher.add_handler(create_meet_handler)
+
+    # No more drinks ordering
+    updater.dispatcher.add_handler(confirm_button)
+    updater.dispatcher.add_handler(end_order)
+    updater.dispatcher.add_handler(close_button)
 
     # Ordering conversation
     updater.dispatcher.add_handler(start_order)
 
+    # The flow of getting drinks
+    updater.dispatcher.add_handler(check_in_handler)
+    updater.dispatcher.add_handler(payment_handler)
+    updater.dispatcher.add_handler(got_drinks_handler)
+    updater.dispatcher.add_handler(checkout_handler)
+
+    # Debug commands
+    # updater.dispatcher.add_handler(CommandHandler('getme', getme))
+    updater.dispatcher.add_handler(CommandHandler('getcid', getcid))
+    updater.dispatcher.add_handler(CommandHandler('getmid', getmid))
+    # updater.dispatcher.add_handler(CommandHandler('user_data', user_data_, pass_user_data=True))
+    # updater.dispatcher.add_handler(CommandHandler('chat_data', chat_data_, pass_chat_data=True))
+    # updater.dispatcher.add_handler(CommandHandler('chat_member', chat_member))
+    # updater.dispatcher.add_handler(CommandHandler('user', user))
+
+    # Admin commands
+    # updater.dispatcher.add_handler(CommandHandler('lsop', lsop))
+    # updater.dispatcher.add_handler(CommandHandler('addop', addop, pass_args=True))
+    # updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
+
     # Error handler, must at the end
-    updater.dispatcher.add_error_handler(error)
+    # updater.dispatcher.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()

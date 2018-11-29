@@ -8,7 +8,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-def restricted_with_query(admin_config, status):
+def restricted_with_query(admin_config, status=None):
     def decorator(func):
         @wraps(func)
         def wrapped(bot, update, *args, **kwargs):

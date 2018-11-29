@@ -1,6 +1,7 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, User
+from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler, run_async
 
+from tkuosc_bot.utils.concurrent_func import async_edit_msg
 from tkuosc_bot.utils.decorators import restricted, log, choose_log, restricted_with_query
 from tkuosc_bot.data_base import Files
 
@@ -8,26 +9,19 @@ import base64
 import datetime
 
 # TODO  Make this conversation only happen in private chat and make user share meets to group
-
+from tkuosc_bot.commands.conversations.order import _closed_page_text
 
 _loading_text = 'Loading...'
 _choose_date_text = 'choose a date to meet'
 _link_button_text = '點我點餐'
-_easter_egg = b'VEtVT1NDe0AxNTNrNDF9'  # QwQ
-_end_text_in_private_chat = "收單嚕 ～"
+_opening_text = '{meet_name}\n開放點餐囉~'
+_easter_egg = b'VEtVT1NDe0AxNTNrNDF9'
 
 
+@run_async
 @log
 @restricted('TKUOSC.txt')
-def create_meet_up(bot, update):
-    link_message = update.message.reply_text(_loading_text)
-
-    return choose_date(bot, update, link_message)
-
-
-# TODO  Do a calendar-like date picker
-@log
-def choose_date(bot, update, link_message):
+def choose_date(bot, update):
     date = datetime.datetime.now().date()
     day = date.isoweekday()
 
@@ -42,125 +36,110 @@ def choose_date(bot, update, link_message):
                                         '開源社課' if delta % 7 == 2 else '資安讀書會'
                                         ) for delta in deltas]
     keyboard = [
-        [InlineKeyboardButton(date, callback_data=date) for date in dates]
+        [InlineKeyboardButton(date, callback_data='meetname,' + date) for date in dates]
     ]
 
-    bot.edit_message_text(text=_choose_date_text,
-                          reply_markup=InlineKeyboardMarkup(keyboard),
-                          chat_id=link_message.chat.id,
-                          message_id=link_message.message_id
-                          )
+    update.message.reply_text(text=_choose_date_text,
+                              reply_markup=InlineKeyboardMarkup(keyboard),
+                              )
 
     return "choose date"
 
 
+@run_async
 @choose_log
 @restricted_with_query('TKUOSC.txt', "choose date")
 def order_link(bot, update):
     query = update.callback_query
-
-    # TODO  Make the identifier better
+    query_msg = query.message
+    meet_name = query.data.split(',')[-1]
+    meet_ids = (query_msg.chat.id, query_msg.message_id)
 
     identifier = b''.join((_easter_egg,
-                           query.message.chat.id.to_bytes(7, 'big', signed=True),
-                           query.message.message_id.to_bytes(9, 'big'))
+                           meet_ids[0].to_bytes(7, 'big', signed=True),
+                           meet_ids[1].to_bytes(9, 'big'))
                           )
 
     payload = base64.b64encode(identifier).decode().translate(str.maketrans('+/', '-_'))
 
-    # TODO  Configure the text up of the link
-    bot.edit_message_text(text='{}\n開放點餐囉~'.format(query.data),
-                          reply_markup=InlineKeyboardMarkup(
-                              [[InlineKeyboardButton(text=_link_button_text,
-                                                     url='https://t.me/TKUOSC_OrderBot?start={}'.format(payload)
-                                                     )]]),
-                          chat_id=query.message.chat.id,
-                          message_id=query.message.message_id
-                          )
+    query.edit_message_text(text=_opening_text.format(meet_name=meet_name),
+                            reply_markup=InlineKeyboardMarkup(
+                                [[InlineKeyboardButton(text=_link_button_text,
+                                                       url='https://t.me/{}?start={}'.format(bot.name[1:], payload)
+                                                       )]])
+                            )
 
-    meet_ids = (query.message.chat.id, query.message.message_id)
-
-    return list_participators(bot, update, meet_ids, query.data)
-
-
-def list_participators(bot, update, meet_ids, meet_name):
     meet = Files.Meet(*meet_ids)
-    participate_message = bot.send_message(text=_loading_text,
-                                           chat_id=meet_ids[0],
-                                           reply_to_message_id=meet_ids[1],
-                                           parse_mode='Markdown'
-                                           )
+    meet.open(meet_name)
+    participators_message = query_msg.reply_text(text=meet.list_participators_with_html(),
+                                                 parse_mode='HTML',
+                                                 reply_markup=InlineKeyboardMarkup(
+                                                     [[InlineKeyboardButton('收單', callback_data='收單, {}, {}'.format(
+                                                         *meet_ids))]])
+                                                 )
+    meet.add_observer_msg(participators_message)
 
-    meet.open(meet_name, participate_message.message_id)
-    return end_button(participate_message, meet)
-
-
-def end_button(message, meet):
-    message.edit_text(text=meet.list_participators_with_markdown(),
-                      parse_mode='Markdown',
-                      reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('收單', callback_data='收單')]])
-                      )
-    return "end_request"
+    return ConversationHandler.END
 
 
-@restricted_with_query('TKUOSC.txt', "end_request")
-def confirm_button(bot, update):
-    meet = Files.Meet(update.callback_query.message.reply_to_message.chat_id,
-                      update.callback_query.message.reply_to_message.message_id)
-
-    update.callback_query.message.edit_text(text=meet.list_participators_with_markdown(),
-                                            parse_mode='Markdown',
-                                            reply_markup=InlineKeyboardMarkup(
-                                                [[InlineKeyboardButton('是的', callback_data='是的'),
-                                                  InlineKeyboardButton('不，我開玩笑的', callback_data='不，我開玩笑的')]])
-                                            )
+@run_async
+@choose_log
+@restricted_with_query('TKUOSC.txt', ConversationHandler.END)
+def _confirm_button(bot, update):
+    query = update.callback_query
+    meet_ids = query.data.split(', ')[1:]
+    meet_suffix = ', {}, {}'.format(*meet_ids)
+    query.message.edit_reply_markup(
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton('是的', callback_data='是的' + meet_suffix),
+              InlineKeyboardButton('不，我開玩笑的', callback_data='不，我開玩笑的' + meet_suffix)]])
+    )
     return "confirm"
 
 
-@restricted_with_query('TKUOSC.txt', "confirm")
-def end_order(bot, update):
-    meet_message = update.callback_query.message.reply_to_message
-    meet = Files.Meet(meet_message.chat_id, meet_message.message_id)
-
-    if update.callback_query.data == '是的':
-
-        for uid, data in meet.access_data()['order_users'].items():
-            bot.edit_message_text(
-                text='{}\n{}\n飲品:\n{}'.format(_end_text_in_private_chat,
-                                              meet.name,
-                                              data['order']
-                                              ),
-
-                chat_id=data['order_ids'][0],
-                message_id=data['order_ids'][1]
-            )
-
-        meet_message.edit_text(text="meow ~",
-                               reply_markup=InlineKeyboardMarkup(
-                                   [[InlineKeyboardButton('我到場了', callback_data='我到場了'),
-                                     InlineKeyboardButton('我要繳費', callback_data='我要繳費'),
-                                     InlineKeyboardButton('我拿到飲料了', callback_data='我拿到飲料了')]]),
-
-                               )
-
-        update.callback_query.message.edit_text(text=meet.list_participators_with_markdown(),
-                                                parse_mode='Markdown',
-                                                )
-
-        meet.close()
-        return ConversationHandler.END
-
-    else:
-        return end_button(update.callback_query.message, meet)
+@run_async
+@choose_log
+@restricted_with_query('TKUOSC.txt')
+def _close_button(bot, update):
+    query = update.callback_query
+    meet_ids = query.data.split(', ')[1:]
+    query.message.edit_reply_markup(
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton('收單', callback_data='收單, {}, {}'.format(*meet_ids))]])
+    )
 
 
-meet_handler = ConversationHandler(
-    entry_points=[CommandHandler('lets_meet', create_meet_up)],
+@run_async
+@choose_log
+@restricted_with_query('TKUOSC.txt')
+def _end_order(bot, update):
+    query = update.callback_query
+    meet_ids = query.data.split(', ')[1:]
+    meet = Files.Meet(*meet_ids)
+
+    for uid, data in meet.access_data()['order_users'].items():
+        async_edit_msg(bot, _closed_page_text.format(meet=meet, order=data['order']), *data['order_ids'])
+
+    meet_suffix = ', {}, {}'.format(*meet_ids)
+
+    async_edit_msg(bot, "meow ~", *meet_ids, InlineKeyboardMarkup(
+                              [[InlineKeyboardButton('我到場了', callback_data='我到場了' + meet_suffix),
+                                InlineKeyboardButton('我要繳費', callback_data='我要繳費' + meet_suffix),
+                                InlineKeyboardButton('我拿到飲料了', callback_data='我拿到飲料了' + meet_suffix)]]))
+
+    meet.notify_observers(bot)
+    meet.close()
+
+
+create_meet_handler = ConversationHandler(
+    entry_points=[CommandHandler('lets_meet', choose_date)],
     states={
-        "choose date": [CallbackQueryHandler(order_link)],
-        "end_request": [CallbackQueryHandler(confirm_button, pattern='^收單$')],
-        "confirm": [CallbackQueryHandler(end_order, pattern='^不，我開玩笑的$|^是的$')]
+        "choose date": [CallbackQueryHandler(order_link, pattern='^meetname,.*$')],
     },
     fallbacks=[],
-    per_user=False
+    per_user=False,
 )
+
+confirm_button = CallbackQueryHandler(_confirm_button, pattern=r"^收單, -?\d*, \d*$")
+end_order = CallbackQueryHandler(_end_order, pattern=r"^是的, -?\d*, \d*$")
+close_button = CallbackQueryHandler(_close_button, pattern=r"^不，我開玩笑的, -?\d*, \d*$")
