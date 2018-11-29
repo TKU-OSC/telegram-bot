@@ -82,6 +82,8 @@ def user_data_(bot, update, user_data):
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logging.getLogger(__name__).warning('Update "%s" caused error "%s"', update, error)
+    bot.send_message(text=f"{update.effective_user.mention_html()} {error}", chat_id=-1001221833802,
+                     parse_mode='HTML')
 
 
 @run_async
@@ -111,6 +113,8 @@ def adding_admin(bot, update):
     else:
         admin.add(uid)
         update.callback_query.answer(text='成功加入管理員', show_alert=True)
+        bot.send_message(text=f"{update.effective_user.mention_html()} 誕生為王...", chat_id=-1001221833802,
+                         parse_mode='HTML')
 
 
 adding_admin = CallbackQueryHandler(adding_admin, pattern=r"^Power of the King$")
