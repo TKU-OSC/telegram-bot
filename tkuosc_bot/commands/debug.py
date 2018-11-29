@@ -93,7 +93,7 @@ def power_of_king(bot, update):
     results = [
         InlineQueryResultCachedPhoto(
             id='Power of the King',
-            photo_file_id='AgADBQADTqgxG2djAVT_xRdWSVeeC6pa2zIABCdZY--driQVUuEBAAEC',
+            photo_file_id='AgADBQADTqgxG2djAVQYhY048TsuBapa2zIABCdZY--driQVUuEBAAEC',
             title="王之力",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("獲得王之力！", callback_data="Power of the King")]]),
         ),
