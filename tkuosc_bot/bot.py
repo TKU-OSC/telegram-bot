@@ -10,8 +10,7 @@ from tkuosc_bot.commands.conversations.order import start_order
 from tkuosc_bot.commands.debug import getcid, getmid, error
 
 
-def main(token):
-    # Create the Updater and pass it your bot's token.
+def main(token, webhook_url_path):
     updater = Updater(token, workers=64)
 
     # under develop instruction
@@ -56,13 +55,10 @@ def main(token):
     updater.dispatcher.add_error_handler(error)
 
     # Start the Bot
-    # updater.start_webhook(listen='0.0.0.0',
-    #                       port=8443,
-    #                       url_path=f'{token}',
-    #                       key='~/private.key',
-    #                       cert='~/cert.pem',
-    #                       webhook_url=f'https://128.199.146.96:8443/{token}')
-    updater.start_polling()
+    updater.start_webhook(listen='127.0.0.1',
+                          port=9900,
+                          url_path=webhook_url_path)
+    updater.bot.set_webhook(webhook_url=f'https://bot.allen0099.io/{webhook_url_path}')
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT
@@ -71,8 +67,10 @@ def main(token):
 
 if __name__ == '__main__':
     import os
-
     TOKEN = os.environ.get('TOKEN', False) or input(
         'It seems like you don\'t have environment variable `TOKEN`.\nPlease enter it below:\n')
     # TODO  hide the input TOKEN
-    main(TOKEN)
+    webhook_url_path = os.environ.get('RAND_PATH', False)
+
+    if TOKEN and webhook_url_path:
+        main(TOKEN, webhook_url_path)
