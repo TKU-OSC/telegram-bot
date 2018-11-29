@@ -53,16 +53,16 @@ def main(token):
     # updater.dispatcher.add_handler(CommandHandler('deop', deop, pass_args=True))
 
     # Error handler, must at the end
-    # updater.dispatcher.add_error_handler(error)
+    updater.dispatcher.add_error_handler(error)
 
     # Start the Bot
-    updater.start_webhook(listen='0.0.0.0',
-                          port=8443,
-                          url_path=f'{token}',
-                          key='~/private.key',
-                          cert='~/cert.pem',
-                          webhook_url=f'https://128.199.146.96:8443/{token}')
-    # updater.start_polling()
+    # updater.start_webhook(listen='0.0.0.0',
+    #                       port=8443,
+    #                       url_path=f'{token}',
+    #                       key='~/private.key',
+    #                       cert='~/cert.pem',
+    #                       webhook_url=f'https://128.199.146.96:8443/{token}')
+    updater.start_polling()
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT
