@@ -26,13 +26,13 @@ def restricted_with_query(admin_config, status=None):
     return decorator
 
 
-def restricted(admin_config):
+def restricted(admin_config, status=None):
     def decorator(func):
         @wraps(func)
         def wrapped(bot, update, *args, **kwargs):
             if not Files.Admin(admin_config).is_admin(update.effective_user.id):
                 update.message.reply_text("Sorry, this is not for you. QwQ")
-                return
+                return status
 
             return func(bot, update, *args, **kwargs)
 
