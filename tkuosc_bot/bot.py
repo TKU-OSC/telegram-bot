@@ -3,7 +3,7 @@
 
 from telegram.ext import Updater, CommandHandler, InlineQueryHandler, MessageHandler, Filters
 
-from tkuosc_bot.commands.basic import help_
+from tkuosc_bot.commands.basic import help_, start
 from tkuosc_bot.commands.conversations.flow import check_in_handler, payment_handler, got_drinks_handler, \
     checkout_handler
 from tkuosc_bot.commands.conversations.meet import create_meet_handler, confirm_button, close_button, end_order
@@ -17,6 +17,7 @@ def main(token):
     # under develop instruction
 
     # Basic commands
+    updater.dispatcher.add_handler(CommandHandler('start', start, Filters.private, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler('help', help_))
 
     # Create meet up conversation
