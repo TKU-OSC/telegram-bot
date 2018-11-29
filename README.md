@@ -6,7 +6,9 @@
 This bot is mainly to deal with the process of ordering drinks in weekly meet up.  
 
 ## Installation
+#### Polling
+    pip install -e git+https://github.com/TKU-OSC/telegram-bot.git@polling#egg=TKUOSC_OrderBot
+#### Webhook
     pip install -e git+https://github.com/TKU-OSC/telegram-bot.git#egg=TKUOSC_OrderBot
-    
 ## Run
     python -m tkuosc_bot.bot
