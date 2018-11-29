@@ -14,7 +14,7 @@ def _concat_chosen_items(items):
 
 _welcome_page_text = '{meet.name}\n開放點餐囉~'
 _order_complete_page_text = "{meet.name}\n訂單完成:\n{order}"
-_closed_page_text = '{meet.name}\n收單囉~\n{order}'
+_closed_page_text = '{meet.name}\n{order}\n收單囉~'
 _did_not_order_text = '{meet.name}\n你並未點餐 OwO'
 _loading_text = 'Loading...'
 _record_is_not_exist_notification = '資料已被刪除 (ゞω< )'
