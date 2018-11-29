@@ -5,7 +5,7 @@ with open('requirements.txt', 'r') as requirements:
 
 setup(
     name='TKUOSC_OrderBot',
-    version='0.1.isekai_dev0',
+    version='1.0.0_meow',
     packages=['tkuosc_bot',
               'tkuosc_bot.commands',
               'tkuosc_bot.commands.conversations',
@@ -16,7 +16,8 @@ setup(
     python_requires='>=3',
     data_files=[('files/menu', ['files/menu/Ai_cafe_drinks.json']),
                 ('files/meet/open/', ['files/meet/open/README']),
-                ('files/meet/close', ['files/meet/close/README'])
+                ('files/meet/close', ['files/meet/close/README']),
+                ('files/admin', ['files/admin/TKUOSC.txt'])
                 ],
     url='https://github.com/TKU-OSC/telegram-bot/tree/master',
     license='MIT',
