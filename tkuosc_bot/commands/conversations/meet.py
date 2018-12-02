@@ -84,7 +84,7 @@ def order_link(bot, update):
 
 @run_async
 @choose_log
-@restricted_with_query('TKUOSC.txt', ConversationHandler.END)
+@restricted_with_query('TKUOSC.txt')
 def _confirm_button(bot, update):
     query = update.callback_query
     meet_ids = query.data.split(', ')[1:]
@@ -94,7 +94,6 @@ def _confirm_button(bot, update):
             [[InlineKeyboardButton('是的', callback_data='是的' + meet_suffix),
               InlineKeyboardButton('不，我開玩笑的', callback_data='不，我開玩笑的' + meet_suffix)]])
     )
-    return "confirm"
 
 
 @run_async

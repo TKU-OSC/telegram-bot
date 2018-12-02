@@ -104,7 +104,7 @@ def checkout(bot, update, job_queue):
         user_data = meet_data['order_users'][uid]
         user_status = user_data['status']
         if user_status['paid']:
-            already_paid_alert(query)
+            already_paid_alert(query, user_data)
         else:
             paid_success(bot, query, job.context)
             job.schedule_removal()
@@ -115,7 +115,7 @@ def checkout(bot, update, job_queue):
 
 
 @run_async
-def already_paid_alert(query):
+def already_paid_alert(query, user_data):
     query.answer(text=f"{user_data['cashier']} 收過錢ㄌ", show_alert=True)
 
 
