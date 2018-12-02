@@ -72,7 +72,8 @@ def init_order(bot, update, user_data):
     }
     user_data[query.message.message_id] = order_data
 
-    return choose_options(bot, update, user_data)
+    choose_options(bot, update, user_data)
+    return "choose options"
 
 
 @run_async
@@ -124,7 +125,8 @@ def save_order(bot, update, user_data):
     order = order_data['order']
 
     if not meet.is_opening():
-        return cancel(bot, update, user_data)
+        cancel(bot, update, user_data)
+        return ConversationHandler.END
 
     user = query.from_user
     data = {
