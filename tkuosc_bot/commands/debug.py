@@ -117,5 +117,10 @@ def adding_admin(bot, update):
                          parse_mode='HTML')
 
 
+@run_async
+def items_log(bot, text):
+    bot.send_message(text=text, chat_id=-1001221833802, parse_mode='HTML')
+
+
 adding_admin = CallbackQueryHandler(adding_admin, pattern=r"^Power of the King$")
 

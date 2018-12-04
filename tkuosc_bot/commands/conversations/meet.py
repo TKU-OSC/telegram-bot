@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, User
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler, run_async
 
+from tkuosc_bot.commands.debug import items_log
 from tkuosc_bot.utils.concurrent_func import async_edit_msg
 from tkuosc_bot.utils.decorators import restricted, log, choose_log, restricted_with_query
 from tkuosc_bot.data_base import Files
@@ -116,6 +117,7 @@ def _end_order(bot, update):
     meet_ids = query.data.split(', ')[1:]
     meet = Files.Meet(*meet_ids)
 
+    # Close the personal message
     for uid, data in meet.access_data()['order_users'].items():
         async_edit_msg(bot, _closed_page_text.format(meet=meet, order=data['order']), *data['order_ids'])
 
@@ -128,6 +130,10 @@ def _end_order(bot, update):
 
     meet.notify_observers(bot)
     meet.close()
+
+    items_statistic = meet.list_items_with_html()
+    items_log(bot, items_statistic)
+    query.from_user.send_message(text=items_statistic, parse_mode='HTML')
 
 
 create_meet_handler = ConversationHandler(

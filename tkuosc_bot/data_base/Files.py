@@ -1,9 +1,8 @@
-import os
 import json
-from functools import wraps
+import os
+from collections import Counter
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import run_async
 
 from tkuosc_bot.utils.concurrent_func import async_edit_msg
 
@@ -127,6 +126,12 @@ class Meet:
 
         return '<b>Participators:</b>\n' + '    Nobody now...'
 
+    def list_items_with_html(self):
+        items = Counter(user_data['order'] for user_data in self.access_data()['order_users'])
+        text = '\n'.join(f"{'<b>' + item.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</b>':<20}"
+                         f" {quantity:<3}" for item, quantity in items.most_common())
+        return '<code>' + text + f'\n{f"總共有 {sum(items.values())} 筆":^23}' '</code>'
+
     @staticmethod
     def user_status_with_html(data):
         status = data['status']
@@ -145,8 +150,8 @@ class Meet:
     def notify_observers(self, bot, with_button=False):
         text = self.list_participators_with_html()
         keyboard = InlineKeyboardMarkup(
-                    [[InlineKeyboardButton('收單', callback_data='收單, {}, {}'.format(self.chat_id, self.msg_id))]]
-                ) if with_button else None
+            [[InlineKeyboardButton('收單', callback_data='收單, {}, {}'.format(self.chat_id, self.msg_id))]]
+        ) if with_button else None
 
         for chat_id, msg_id in self.observers_msg:
             async_edit_msg(bot, text, chat_id, msg_id, keyboard=keyboard, parse_mode="HTML")
