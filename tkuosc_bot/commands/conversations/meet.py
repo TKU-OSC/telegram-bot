@@ -20,7 +20,7 @@ _easter_egg = b'VEtVT1NDe0AxNTNrNDF9'
 
 @run_async
 @log
-@restricted('TKUOSC.txt')
+@restricted('TKUOSC.txt', ConversationHandler.END)
 def choose_date(bot, update):
     date = datetime.datetime.now().date()
     day = date.isoweekday()
