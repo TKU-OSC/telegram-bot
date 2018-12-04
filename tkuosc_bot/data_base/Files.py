@@ -1,9 +1,8 @@
-import os
 import json
-from functools import wraps
+import os
+from collections import Counter
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import run_async
 
 from tkuosc_bot.utils.concurrent_func import async_edit_msg
 
@@ -126,6 +125,12 @@ class Meet:
             return text
 
         return '<b>Participators:</b>\n' + '    Nobody now...'
+
+    def list_items_with_html(self):
+        items = Counter(user_data['order'] for user_data in self.access_data()['order_users'].values())
+        text = '\n'.join(f"{item.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'): <20}"
+                         f" {quantity:<3}" for item, quantity in items.most_common())
+        return '<code>' + text + f'\n{f"總共有 {sum(items.values())} 筆": ^23}' '</code>'
 
     @staticmethod
     def user_status_with_html(data):

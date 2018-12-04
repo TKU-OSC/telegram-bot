@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from telegram.ext import Updater, CommandHandler, InlineQueryHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, InlineQueryHandler, Filters
 
 from tkuosc_bot.commands.basic import help_, start
 from tkuosc_bot.commands.conversations.flow import check_in_handler, payment_handler, got_drinks_handler, \

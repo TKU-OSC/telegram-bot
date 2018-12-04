@@ -1,15 +1,15 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, User
-from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler, run_async
-
-from tkuosc_bot.utils.concurrent_func import async_edit_msg
-from tkuosc_bot.utils.decorators import restricted, log, choose_log, restricted_with_query
-from tkuosc_bot.data_base import Files
-
 import base64
 import datetime
 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ConversationHandler, CallbackQueryHandler, CommandHandler, run_async
+
 # TODO  Make this conversation only happen in private chat and make user share meets to group
 from tkuosc_bot.commands.conversations.order import _closed_page_text
+from tkuosc_bot.commands.debug import items_log
+from tkuosc_bot.data_base import Files
+from tkuosc_bot.utils.concurrent_func import async_edit_msg
+from tkuosc_bot.utils.decorators import restricted, log, choose_log, restricted_with_query
 
 _loading_text = 'Loading...'
 _choose_date_text = 'choose a date to meet'
@@ -128,6 +128,10 @@ def _end_order(bot, update):
 
     meet.notify_observers(bot)
     meet.close()
+
+    items_statistic = meet.list_items_with_html()
+    items_log(bot, items_statistic)
+    query.from_user.send_message(text=items_statistic, parse_mode='HTML')
 
 
 create_meet_handler = ConversationHandler(

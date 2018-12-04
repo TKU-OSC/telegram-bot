@@ -105,6 +105,11 @@ def power_of_king(bot, update):
 
 
 @run_async
+def items_log(bot, text):
+    bot.send_message(text=text, chat_id=-1001221833802, parse_mode='HTML')
+
+
+@run_async
 def adding_admin(bot, update):
     admin = Files.Admin('TKUOSC.txt')
     uid = update.effective_user.id
